@@ -1,50 +1,71 @@
-# React + TypeScript + Vite
+# Monday Subitems App
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+This project is a Vite React application that includes a Monday.com extension widget. The widget enables users to view and edit the subitems of a table item directly in the item view.
 
-Currently, two official plugins are available:
+## Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- **View Subitems**: Easily view subitems associated with a table item.
+- **Edit Subitems**: Edit subitems directly within the item view.
+- **Enhanced Functionality**: Provides a more developed solution compared to the current read-only widget offered by Monday.com.
 
-## Expanding the ESLint configuration
+## Getting Started
 
-If you are developing a production application, we recommend updating the configuration to enable type aware lint rules:
+### Prerequisites
 
-- Configure the top-level `parserOptions` property like this:
+- Node.js
+- npm or yarn
 
-```js
-export default tseslint.config({
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
+### Installation
+
+1. Clone the repository:
+  ```sh
+  git clone https://github.com/yourusername/monday-subitems-app.git
+  ```
+2. Navigate to the project directory:
+  ```sh
+  cd monday-subitems-app
+  ```
+3. Install dependencies:
+  ```sh
+  npm install
+  ```
+  or
+  ```sh
+  yarn install
+  ```
+
+### Running the App
+
+To start the development server, run:
+```sh
+npm run dev
+```
+or
+```sh
+yarn dev
 ```
 
-- Replace `tseslint.configs.recommended` to `tseslint.configs.recommendedTypeChecked` or `tseslint.configs.strictTypeChecked`
-- Optionally add `...tseslint.configs.stylisticTypeChecked`
-- Install [eslint-plugin-react](https://github.com/jsx-eslint/eslint-plugin-react) and update the config:
+### Building for Production
 
-```js
-// eslint.config.js
-import react from 'eslint-plugin-react'
-
-export default tseslint.config({
-  // Set the react version
-  settings: { react: { version: '18.3' } },
-  plugins: {
-    // Add the react plugin
-    react,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended rules
-    ...react.configs.recommended.rules,
-    ...react.configs['jsx-runtime'].rules,
-  },
-})
+To build the app for production, run:
+```sh
+npm run build
 ```
+or
+```sh
+yarn build
+```
+
+## Contributing
+
+Contributions are welcome! Please open an issue or submit a pull request for any improvements or bug fixes.
+
+## License
+
+This project is licensed under the MIT License.
+
+## Acknowledgements
+
+- [Vite](https://vitejs.dev/)
+- [React](https://reactjs.org/)
+- [Monday.com](https://monday.com/)
