@@ -1,0 +1,40 @@
+{
+    "extends": [
+        "@rocketseat/eslint-config/react"
+    ],
+    "plugins": ["simple-import-sort"],
+    "settings": {
+        "react": {
+            "version": "detect"
+        },
+        "import/resolver": {
+            "node": {
+                "paths": [
+                    "src"
+                ],
+                "extensions": [
+                    ".js",
+                    ".jsx",
+                    ".ts",
+                    ".tsx"
+                ]
+            }
+        }
+    },
+    "rules": {
+        "@typescript-eslint/no-explicit-any": "off",
+        "simple-import-sort/imports": "error",
+        "simple-import-sort/exports": "error",  
+        "eqeqeq": "off",  
+        "no-unused-vars": [
+            "error",
+            {
+                "vars": "all",
+                "args": "after-used",
+                "ignoreRestSiblings": true,
+                "argsIgnorePattern": "^_"
+            }
+        ],
+        "react/react-in-jsx-scope": "off"
+    }
+}
