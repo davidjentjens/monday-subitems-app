@@ -92,7 +92,7 @@ const SubitemsViewer: React.FC<SubitemsViewerProps> = ({ parentItemId }) => {
         <div
           style={{
             display: 'grid',
-            gridTemplateColumns: `repeat(${SUPPORTED_COLUMN_TYPES.length}, 1fr)`,
+            gridTemplateColumns: `repeat(${subitemColumns.length}, 1fr)`,
           }}
         >
           {subitemColumns.map((column) => (
