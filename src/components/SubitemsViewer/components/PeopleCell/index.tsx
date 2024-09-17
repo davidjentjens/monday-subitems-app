@@ -37,25 +37,25 @@ export const PeopleCell: React.FC<PeopleCellProps> = ({
 
   const [searchUsers, setSearchUsers] = useState('')
 
-  const { allUserData } = useUserDataContext()
+  const { boardUserData } = useUserDataContext()
 
   const selectedUsers = useMemo(() => {
     return (
       selectedUserIds
-        .map((userId) => allUserData.find((user) => user.id == userId))
+        .map((userId) => boardUserData.find((user) => user.id == userId))
         // Remember to filter out undefined values
         .filter((user) => user !== undefined) as UserData[]
     )
-  }, [allUserData, selectedUserIds])
+  }, [boardUserData, selectedUserIds])
 
   const filteredUnselectedUsers = useMemo(
     () =>
-      allUserData
+      boardUserData
         .filter((user) =>
           user.name.toLowerCase().includes(searchUsers.toLowerCase()),
         )
         .filter((user) => !selectedUserIds.includes(user.id)),
-    [allUserData, searchUsers, selectedUserIds],
+    [boardUserData, searchUsers, selectedUserIds],
   )
 
   const changeUser = async (userId: number) => {
