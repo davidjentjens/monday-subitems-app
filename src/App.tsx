@@ -1,3 +1,4 @@
+import { Table } from 'monday-ui-react-core'
 import React, { useEffect, useState } from 'react'
 
 import SubitemsViewer from './components/SubitemsViewer'
@@ -25,7 +26,14 @@ const App: React.FC = () => {
     <div>
       <h1>Monday Subitems Widget</h1>
       {parentItemId === null ? (
-        <p>Loading...</p>
+        <Table
+          dataState={{
+            isLoading: true,
+          }}
+          columns={[]}
+          errorState={<></>}
+          emptyState={<></>}
+        />
       ) : (
         <SubitemsViewer parentItemId={parentItemId} />
       )}

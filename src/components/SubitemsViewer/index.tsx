@@ -1,9 +1,11 @@
 import {
+  Button,
   Table,
   TableBody,
   TableCell,
   TableHeaderCell,
   TableRow,
+  TextField,
 } from 'monday-ui-react-core'
 import React, { useState } from 'react'
 import { UserDataProvider } from 'src/hooks/useUserData'
@@ -20,7 +22,7 @@ interface SubitemsViewerProps {
   parentItemId: number
 }
 
-export const SUPPORTED_COLUMN_TYPES = ['name', 'text', 'status', 'people']
+export const SUPPORTED_COLUMN_TYPES = ['name', 'text', 'people']
 
 const SubitemsViewer: React.FC<SubitemsViewerProps> = ({ parentItemId }) => {
   const { subitemColumns, loading: columnsLoading } =
@@ -76,7 +78,6 @@ const SubitemsViewer: React.FC<SubitemsViewerProps> = ({ parentItemId }) => {
   return (
     <div>
       <h3>Subitems for Item {parentItemId}</h3>
-      {(columnsLoading || itemsLoading) && <p>Loading...</p>}
       <Table
         dataState={{
           isLoading: boardId === null || columnsLoading || itemsLoading,
@@ -89,7 +90,10 @@ const SubitemsViewer: React.FC<SubitemsViewerProps> = ({ parentItemId }) => {
         errorState={<></>}
       >
         <div
-          style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr' }}
+          style={{
+            display: 'grid',
+            gridTemplateColumns: `repeat(${SUPPORTED_COLUMN_TYPES.length}, 1fr)`,
+          }}
         >
           {subitemColumns.map((column) => (
             <TableHeaderCell key={column.id} title={column.title} />
@@ -109,14 +113,29 @@ const SubitemsViewer: React.FC<SubitemsViewerProps> = ({ parentItemId }) => {
           </TableBody>
         </UserDataProvider>
       </Table>
-      <input
-        type="text"
-        value={newSubitemName}
-        onChange={(e) => setNewSubitemName(e.target.value)}
-        placeholder="New subitem name"
-        onKeyDown={(e) => e.key === 'Enter' && addSubitem()}
-      />
-      <button onClick={addSubitem}>Add Subitem</button>
+      <div
+        style={{
+          display: 'flex',
+          gap: 8,
+          alignItems: 'center',
+          marginTop: 16,
+          width: '80vw',
+        }}
+      >
+        <TextField
+          value={newSubitemName}
+          onChange={(value) => setNewSubitemName(value)}
+          placeholder="New subitem name"
+          onKeyDown={(e) => e.key === 'Enter' && addSubitem()}
+        />
+        <Button
+          onClick={addSubitem}
+          size={Button.sizes.SMALL}
+          kind={Button.kinds.SECONDARY}
+        >
+          Add Subitem
+        </Button>
+      </div>
     </div>
   )
 }
