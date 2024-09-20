@@ -24,7 +24,6 @@ const App: React.FC = () => {
 
   return (
     <div>
-      <h1>Monday Subitems Widget</h1>
       {parentItemId === null ? (
         <Table
           dataState={{

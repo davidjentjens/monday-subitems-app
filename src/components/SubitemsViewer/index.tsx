@@ -77,7 +77,6 @@ const SubitemsViewer: React.FC<SubitemsViewerProps> = ({ parentItemId }) => {
 
   return (
     <div>
-      <h3>Subitems for Item {parentItemId}</h3>
       <Table
         dataState={{
           isLoading: boardId === null || columnsLoading || itemsLoading,
