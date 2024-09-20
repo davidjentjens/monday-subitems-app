@@ -10,7 +10,7 @@
     "lint": "eslint --fix",
     "preview": "vite preview",
     "start": "serve -s dist -l 8080",
-    "deploy": "tsc -b && vite build && mapps code:push -i 10355514"
+    "deploy": "tsc -b && vite build && mapps code:push -i 10355531"
   },
   "dependencies": {
     "dotenv": "^16.4.5",
