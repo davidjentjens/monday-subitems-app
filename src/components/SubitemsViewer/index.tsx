@@ -7,14 +7,13 @@ import {
   TableRow,
   TextField,
 } from 'monday-ui-react-core'
-import React, { useState } from 'react'
-import { UserDataProvider } from 'src/hooks/useUserData'
-import { Subitem, SubitemColumn } from 'src/interfaces'
-import { monday } from 'src/services'
+import React, { useMemo } from 'react'
+import { Subitem, SubitemColumn, UserData } from 'src/interfaces'
 
 import { PeopleCell } from './components/PeopleCell'
 import { StatusCell } from './components/StatusCell'
 import { TextCell } from './components/TextCell'
+import { AppProvider } from './hooks'
 import useSubitemColumns from './hooks/useSubitemColumns'
 import useSubitems from './hooks/useSubitems'
 
@@ -22,7 +21,7 @@ interface SubitemsViewerProps {
   parentItemId: number
 }
 
-export const SUPPORTED_COLUMN_TYPES = ['name', 'text', 'people']
+export const SUPPORTED_COLUMN_TYPES = ['name', 'text', 'status', 'people']
 
 const SubitemsViewer: React.FC<SubitemsViewerProps> = ({ parentItemId }) => {
   const { subitemColumns, loading: columnsLoading } =
@@ -31,42 +30,60 @@ const SubitemsViewer: React.FC<SubitemsViewerProps> = ({ parentItemId }) => {
     boardId,
     subitems,
     loading: itemsLoading,
-    fetchSubitems,
+    addSubitem,
+    newSubitemName,
+    onNewSubitemNameChange,
   } = useSubitems(parentItemId)
-  const [newSubitemName, setNewSubitemName] = useState('')
 
-  const addSubitem = async () => {
-    if (!newSubitemName) return
-    try {
-      await monday.api<{ data: { create_subitem: { id: string } } }>(
-        `mutation {
-            create_subitem (parent_item_id: ${parentItemId}, item_name: "${newSubitemName}") {
-                id
-            }
-        }`,
-      )
-      setNewSubitemName('')
-      fetchSubitems()
-    } catch (error) {
-      console.error('Error adding subitem:', error)
-    }
-  }
+  const statusColumnIds = useMemo(
+    () =>
+      subitemColumns
+        .filter((column) => column.type === 'status')
+        .map((column) => column.id),
+    [subitemColumns],
+  )
 
   const renderTableCell = (column: SubitemColumn, subitem: Subitem) => {
     switch (column.type) {
       case 'name':
-        return subitem.name
+        return (
+          <TextCell
+            boardId={boardId}
+            subItemId={subitem.id}
+            selectedValue={subitem.name}
+            columnId={column.id}
+          />
+        )
       case 'text':
         return (
-          <TextCell boardId={boardId} subitem={subitem} columnId={column.id} />
+          <TextCell
+            boardId={boardId}
+            subItemId={subitem.id}
+            selectedValue={subitem[column.id]?.value ?? ''}
+            columnId={column.id}
+          />
         )
       case 'status':
-        return <StatusCell subitem={subitem} columnId={column.id} />
+        return (
+          <StatusCell
+            boardId={boardId}
+            subItemId={subitem.id}
+            selectedValue={subitem[column.id].value?.index}
+            columnId={column.id}
+          />
+        )
       case 'people':
         return (
           <PeopleCell
             boardId={boardId}
-            subitem={subitem}
+            subItemId={subitem.id}
+            selectedValue={
+              subitem[column.id]?.value
+                ? subitem[column.id]?.value.personsAndTeams.map(
+                    (user: UserData) => user.id,
+                  )
+                : []
+            }
             columnId={column.id}
           />
         )
@@ -79,7 +96,7 @@ const SubitemsViewer: React.FC<SubitemsViewerProps> = ({ parentItemId }) => {
     <div>
       <Table
         dataState={{
-          isLoading: boardId === null || columnsLoading || itemsLoading,
+          isLoading: boardId === null || columnsLoading,
         }}
         columns={subitemColumns.map((column) => ({
           id: column.id,
@@ -98,19 +115,24 @@ const SubitemsViewer: React.FC<SubitemsViewerProps> = ({ parentItemId }) => {
             <TableHeaderCell key={column.id} title={column.title} />
           ))}
         </div>
-        <UserDataProvider boardId={boardId!}>
+
+        <AppProvider boardId={boardId!} columnIds={statusColumnIds}>
           <TableBody>
-            {subitems.map((subitem) => (
-              <TableRow key={subitem.id}>
-                {subitemColumns.map((column) => (
-                  <TableCell key={column.id}>
-                    {renderTableCell(column, subitem)}
-                  </TableCell>
-                ))}
-              </TableRow>
-            ))}
+            {columnsLoading ? (
+              <></>
+            ) : (
+              subitems.map((subitem) => (
+                <TableRow key={subitem.id}>
+                  {subitemColumns.map((column) => (
+                    <TableCell key={column.id}>
+                      {renderTableCell(column, subitem)}
+                    </TableCell>
+                  ))}
+                </TableRow>
+              ))
+            )}
           </TableBody>
-        </UserDataProvider>
+        </AppProvider>
       </Table>
       <div
         style={{
@@ -123,12 +145,13 @@ const SubitemsViewer: React.FC<SubitemsViewerProps> = ({ parentItemId }) => {
       >
         <TextField
           value={newSubitemName}
-          onChange={(value) => setNewSubitemName(value)}
+          onChange={(value) => onNewSubitemNameChange(value)}
           placeholder="New subitem name"
           onKeyDown={(e) => e.key === 'Enter' && addSubitem()}
         />
         <Button
           onClick={addSubitem}
+          loading={itemsLoading}
           size={Button.sizes.SMALL}
           kind={Button.kinds.SECONDARY}
         >

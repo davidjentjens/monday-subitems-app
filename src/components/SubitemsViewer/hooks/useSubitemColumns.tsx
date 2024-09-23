@@ -55,7 +55,10 @@ const useSubitemColumns = (parentItemId: number) => {
     fetchSubitemColumns()
   }, [parentItemId])
 
-  return { subitemColumns, loading }
+  return {
+    subitemColumns,
+    loading,
+  }
 }
 
 export default useSubitemColumns

@@ -8,6 +8,11 @@ const useSubitems = (parentItemId: number) => {
   const [boardId, setBoardId] = useState<number | null>(null)
   const [subitems, setSubitems] = useState<Subitem[]>([])
   const [loading, setLoading] = useState(false)
+  const [newSubitemName, setNewSubitemName] = useState('')
+
+  const onNewSubitemNameChange = (value: string) => {
+    setNewSubitemName(value)
+  }
 
   const fetchSubitems = useCallback(async () => {
     setLoading(true)
@@ -65,11 +70,38 @@ const useSubitems = (parentItemId: number) => {
     setLoading(false)
   }, [parentItemId])
 
+  const addSubitem = useCallback(async () => {
+    if (!newSubitemName) return
+    setLoading(true)
+    try {
+      setNewSubitemName('')
+      await monday.api<{ data: { create_subitem: { id: string } } }>(
+        `mutation {
+            create_subitem (parent_item_id: ${parentItemId}, item_name: "${newSubitemName}") {
+                id
+            }
+        }`,
+      )
+      fetchSubitems()
+    } catch (error) {
+      console.error('Error adding subitem:', error)
+    }
+    setLoading(false)
+  }, [fetchSubitems, newSubitemName, parentItemId])
+
   useEffect(() => {
     fetchSubitems()
   }, [fetchSubitems, parentItemId])
 
-  return { boardId, subitems, loading, fetchSubitems }
+  return {
+    boardId,
+    subitems,
+    loading,
+    fetchSubitems,
+    addSubitem,
+    newSubitemName,
+    onNewSubitemNameChange,
+  }
 }
 
 export default useSubitems

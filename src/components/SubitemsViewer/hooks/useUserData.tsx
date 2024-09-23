@@ -1,8 +1,7 @@
 import { Loader } from 'monday-ui-react-core'
 import React, { createContext, useContext, useEffect, useState } from 'react'
-
-import { UserData } from '../interfaces'
-import { monday } from '../services'
+import { UserData } from 'src/interfaces'
+import { monday } from 'src/services'
 
 interface UserDataContextProps {
   boardId: number | null

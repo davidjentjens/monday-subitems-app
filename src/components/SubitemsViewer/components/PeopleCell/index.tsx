@@ -11,29 +11,20 @@ import {
 } from 'monday-ui-react-core'
 import { useMemo, useState } from 'react'
 import maleIcon from 'src/assets/maleIcon.png'
-import { useUserDataContext } from 'src/hooks/useUserData'
-import { Subitem, UserData } from 'src/interfaces'
+import { CellProps, UserData } from 'src/interfaces'
 import { monday } from 'src/services'
 
-interface PeopleCellProps {
-  boardId: number | null
-  subitem: Subitem
-  columnId: string
-}
+import { useUserDataContext } from '../../hooks/useUserData'
 
-export const PeopleCell: React.FC<PeopleCellProps> = ({
+export const PeopleCell: React.FC<CellProps> = ({
   boardId,
-  subitem,
+  subItemId,
+  selectedValue,
   columnId,
 }) => {
   const [dialogIsOpen, setDialogIsOpen] = useState(false)
-  const [selectedUserIds, setSelectedUserIds] = useState<number[]>(
-    subitem[columnId]?.value
-      ? subitem[columnId]?.value.personsAndTeams.map(
-          (user: UserData) => user.id,
-        )
-      : [],
-  )
+  const [selectedUserIds, setSelectedUserIds] =
+    useState<number[]>(selectedValue)
 
   const [searchUsers, setSearchUsers] = useState('')
 
@@ -69,7 +60,7 @@ export const PeopleCell: React.FC<PeopleCellProps> = ({
 
     await monday.api(`
       mutation {
-        change_column_value(board_id: ${boardId}, item_id: ${subitem.id}, column_id: "${columnId}", value: "{\\"personsAndTeams\\":[${updatedUserIds.map((id) => `{\\"id\\":${id},\\"kind\\":\\"person\\"}`).join(',')}]}") {
+        change_column_value(board_id: ${boardId}, item_id: ${subItemId}, column_id: "${columnId}", value: "{\\"personsAndTeams\\":[${updatedUserIds.map((id) => `{\\"id\\":${id},\\"kind\\":\\"person\\"}`).join(',')}]}") {
           id
         }
       }
@@ -82,7 +73,7 @@ export const PeopleCell: React.FC<PeopleCellProps> = ({
 
     await monday.api(`
       mutation {
-        change_column_value(board_id: ${boardId}, item_id: ${subitem.id}, column_id: "${columnId}", value: "{\\"personsAndTeams\\":[${updatedUserIds.map((id) => `{\\"id\\":${id},\\"kind\\":\\"person\\"}`).join(',')}]}") {
+        change_column_value(board_id: ${boardId}, item_id: ${subItemId}, column_id: "${columnId}", value: "{\\"personsAndTeams\\":[${updatedUserIds.map((id) => `{\\"id\\":${id},\\"kind\\":\\"person\\"}`).join(',')}]}") {
           id
         }
       }
@@ -159,7 +150,6 @@ export const PeopleCell: React.FC<PeopleCellProps> = ({
         {selectedUsers.length === 0 ? (
           <Avatar
             type={Avatar.types.IMG}
-            backgroundColor={Avatar.colors.LIPSTICK}
             src={maleIcon}
             tooltipProps={{
               content: 'Add people',

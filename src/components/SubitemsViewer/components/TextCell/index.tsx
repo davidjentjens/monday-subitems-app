@@ -1,27 +1,22 @@
 import { debounce } from 'lodash'
 import { EditableText } from 'monday-ui-react-core'
 import { useCallback, useState } from 'react'
-import { Subitem } from 'src/interfaces'
+import { CellProps } from 'src/interfaces'
 import { monday } from 'src/services'
 
-interface TextCellProps {
-  boardId: number | null
-  subitem: Subitem
-  columnId: string
-}
-
-export const TextCell: React.FC<TextCellProps> = ({
+export const TextCell: React.FC<CellProps> = ({
   boardId,
-  subitem,
+  selectedValue,
+  subItemId,
   columnId,
 }) => {
-  const [text, setText] = useState<string>(subitem[columnId]?.value ?? '')
+  const [text, setText] = useState<string>(selectedValue)
 
   const updateSubitemCell = async (value: string) => {
     // Assuming monday.api is a function to update the Monday table
     await monday.api(`
       mutation {
-        change_simple_column_value(board_id: ${boardId}, item_id: ${subitem.id}, column_id: "${columnId}", value: "${value}") {
+        change_simple_column_value(board_id: ${boardId}, item_id: ${subItemId}, column_id: "${columnId}", value: "${value}") {
           id
         }
       }

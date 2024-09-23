@@ -16,6 +16,13 @@ export interface SubitemsTableProps {
   subitemColumns: SubitemColumn[]
 }
 
+export interface CellProps {
+  boardId: number | null
+  selectedValue: any
+  subItemId: string
+  columnId: string
+}
+
 export interface UserData {
   id: number
   name: string
@@ -26,4 +33,19 @@ export interface UserData {
     name: string
     id: string
   }
+}
+
+export interface StatusProps {
+  name: string
+  colorSettings: {
+    color: string
+    border: string
+  }
+}
+
+export interface StatusMapState {
+  columnId: string
+  statusMap: { [key: number]: StatusProps }
+  positions: { [key: number]: number }
+  loading: boolean
 }
