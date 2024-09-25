@@ -13,28 +13,24 @@ const UserDataContext = createContext<UserDataContextProps | undefined>(
   undefined,
 )
 
-const fetchAllUserDataForBoard = async (
-  boardId: number,
-): Promise<UserData[]> => {
+const fetchAllUserDataForBoard = async (): Promise<UserData[]> => {
   const query = `
     query {
-      boards(ids: ${boardId}) {
-        subscribers {
-          id
+      users {
+        id
+        name
+        created_at
+        email
+        photo_small
+        account {
           name
-          created_at
-          email
-          photo_small
-          account {
-            name
-            id
-          }
+          id
         }
       }
     }
   `
   const response = await monday.api(query)
-  return response.data.boards[0].subscribers.map(
+  return response.data.users.map(
     (user: any): UserData => ({
       id: user.id,
       name: user.name,
@@ -63,7 +59,7 @@ export const UserDataProvider: React.FC<{
 
   useEffect(() => {
     const fetchData = async () => {
-      const boardData = await fetchAllUserDataForBoard(boardId)
+      const boardData = await fetchAllUserDataForBoard()
       setBoardUserData(boardData)
       setLoading(false)
     }

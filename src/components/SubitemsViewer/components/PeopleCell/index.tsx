@@ -24,17 +24,23 @@ export const PeopleCell: React.FC<CellProps> = ({
 }) => {
   const [dialogIsOpen, setDialogIsOpen] = useState(false)
   const [selectedUserIds, setSelectedUserIds] =
-    useState<number[]>(selectedValue)
+    useState<string[]>(selectedValue)
 
   const [searchUsers, setSearchUsers] = useState('')
 
   const { boardUserData } = useUserDataContext()
 
   const selectedUsers = useMemo(() => {
+    console.log(typeof selectedUserIds[0])
     return (
       selectedUserIds
-        .map((userId) => boardUserData.find((user) => user.id == userId))
-        // Remember to filter out undefined values
+        .map((userId) =>
+          boardUserData.find((user) => {
+            console.log(typeof user.id, typeof userId)
+            return user.id === userId
+          }),
+        )
+        // Filter out undefined values
         .filter((user) => user !== undefined) as UserData[]
     )
   }, [boardUserData, selectedUserIds])
@@ -49,13 +55,14 @@ export const PeopleCell: React.FC<CellProps> = ({
     [boardUserData, searchUsers, selectedUserIds],
   )
 
-  const changeUser = async (userId: number) => {
+  const changeUser = async (userId: string) => {
     let updatedUserIds
     if (selectedUserIds.includes(userId)) {
       updatedUserIds = selectedUserIds.filter((id) => id !== userId)
     } else {
       updatedUserIds = [...selectedUserIds, userId]
     }
+    console.log(typeof updatedUserIds[0])
     setSelectedUserIds(updatedUserIds)
 
     await monday.api(`
@@ -67,8 +74,8 @@ export const PeopleCell: React.FC<CellProps> = ({
     `)
   }
 
-  const removeUser = async (userId: number) => {
-    const updatedUserIds = selectedUserIds.filter((id) => id != userId)
+  const removeUser = async (userId: string) => {
+    const updatedUserIds = selectedUserIds.filter((id) => id !== userId)
     setSelectedUserIds(updatedUserIds)
 
     await monday.api(`

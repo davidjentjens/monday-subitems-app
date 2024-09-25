@@ -24,7 +24,7 @@ export interface CellProps {
 }
 
 export interface UserData {
-  id: number
+  id: string
   name: string
   createdAt: string
   email: string

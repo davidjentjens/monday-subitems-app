@@ -80,7 +80,7 @@ const SubitemsViewer: React.FC<SubitemsViewerProps> = ({ parentItemId }) => {
             selectedValue={
               subitem[column.id]?.value
                 ? subitem[column.id]?.value.personsAndTeams.map(
-                    (user: UserData) => user.id,
+                    (user: UserData) => user.id.toString(),
                   )
                 : []
             }
