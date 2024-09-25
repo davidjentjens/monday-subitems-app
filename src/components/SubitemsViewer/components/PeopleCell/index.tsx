@@ -1,3 +1,5 @@
+import './styles.css'
+
 import {
   Avatar,
   AvatarGroup,
@@ -94,6 +96,7 @@ export const PeopleCell: React.FC<CellProps> = ({
       onClickOutside={() => setDialogIsOpen(false)}
       content={
         <DialogContentContainer
+          className="tooltip"
           style={{
             width: '300px',
             maxHeight: '400px',
@@ -153,7 +156,7 @@ export const PeopleCell: React.FC<CellProps> = ({
       position={'bottom' as any}
       tooltip
     >
-      <AvatarGroup size={Avatar.sizes.MEDIUM} max={2}>
+      <AvatarGroup size={Avatar.sizes.MEDIUM} max={2} className="avatar-group">
         {selectedUsers.length === 0 ? (
           <Avatar
             type={Avatar.types.IMG}

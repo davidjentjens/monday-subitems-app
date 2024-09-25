@@ -1,0 +1,11 @@
+.tooltip {
+  z-index: !important 10000000000; /* Set a higher z-index */
+}
+
+.avatar-group > button {
+  z-index: 0; /* Set a lower z-index */
+}
+
+.avatar-group > button > span > div {
+  padding: 0px 5px;
+}

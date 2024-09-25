@@ -1,3 +1,5 @@
+import './styles.css'
+
 import {
   Button,
   Table,
@@ -103,7 +105,7 @@ const SubitemsViewer: React.FC<SubitemsViewerProps> = ({ parentItemId }) => {
         emptyState={<></>}
         errorState={<></>}
       >
-        <TableHeader>
+        <TableHeader className="table-header">
           {subitemColumns.map((column) => (
             <TableHeaderCell key={column.id} title={column.title} />
           ))}

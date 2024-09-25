@@ -8,19 +8,6 @@ const useSubitemColumns = (parentItemId: number) => {
   const [subitemColumns, setSubitemColumns] = useState<SubitemColumn[]>([])
   const [loading, setLoading] = useState(false)
 
-  const getColumnWidth = (column: SubitemColumn) => {
-    switch (column.type) {
-      case 'status':
-        return '0.25fr'
-      case 'people':
-        return '0.15fr'
-      case 'text':
-        return '0.2fr'
-      default:
-        return '0.2fr'
-    }
-  }
-
   useEffect(() => {
     const fetchSubitemColumns = async () => {
       setLoading(true)
