@@ -8,6 +8,19 @@ const useSubitemColumns = (parentItemId: number) => {
   const [subitemColumns, setSubitemColumns] = useState<SubitemColumn[]>([])
   const [loading, setLoading] = useState(false)
 
+  const getColumnWidth = (column: SubitemColumn) => {
+    switch (column.type) {
+      case 'status':
+        return '0.25fr'
+      case 'people':
+        return '0.15fr'
+      case 'text':
+        return '0.2fr'
+      default:
+        return '0.2fr'
+    }
+  }
+
   useEffect(() => {
     const fetchSubitemColumns = async () => {
       setLoading(true)
@@ -34,17 +47,22 @@ const useSubitemColumns = (parentItemId: number) => {
             .filter((column: any) =>
               SUPPORTED_COLUMN_TYPES.includes(column.type),
             )
-            .map((column: any) => ({
-              id: column.id,
-              title: column.column.title,
-              type: column.type,
-            }))
+            .map(
+              (column: any): SubitemColumn => ({
+                id: column.id,
+                title: column.column.title,
+                type: column.type,
+                width: getColumnWidth(column),
+              }),
+            )
         columns.unshift({
           id: 'name',
           title: 'Name',
           type: 'name',
           value: response.data.items[0].subitems[0].name,
+          width: { min: '500px', max: '0.3fr' },
         })
+        columns[columns.length - 1].width = { min: '200px', max: '1fr' }
         setSubitemColumns(columns)
       } catch (error) {
         console.error('Failed to fetch subitem columns:', error)

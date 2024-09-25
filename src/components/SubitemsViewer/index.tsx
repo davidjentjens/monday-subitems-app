@@ -3,6 +3,7 @@ import {
   Table,
   TableBody,
   TableCell,
+  TableHeader,
   TableHeaderCell,
   TableRow,
   TextField,
@@ -98,23 +99,15 @@ const SubitemsViewer: React.FC<SubitemsViewerProps> = ({ parentItemId }) => {
         dataState={{
           isLoading: boardId === null || columnsLoading,
         }}
-        columns={subitemColumns.map((column) => ({
-          id: column.id,
-          title: column.title,
-        }))}
+        columns={subitemColumns}
         emptyState={<></>}
         errorState={<></>}
       >
-        <div
-          style={{
-            display: 'grid',
-            gridTemplateColumns: `repeat(${subitemColumns.length}, 1fr)`,
-          }}
-        >
+        <TableHeader>
           {subitemColumns.map((column) => (
             <TableHeaderCell key={column.id} title={column.title} />
           ))}
-        </div>
+        </TableHeader>
 
         <AppProvider boardId={boardId!} columnIds={statusColumnIds}>
           <TableBody>

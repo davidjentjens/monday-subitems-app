@@ -1,8 +1,11 @@
+type Width = number | `${number}%` | `${number}px` | `${number}fr`
+
 export interface SubitemColumn {
   id: string
   title: string
   type: string
-  value: string
+  value?: string
+  width: Width | { min: Width; max: Width }
 }
 
 export interface Subitem {
