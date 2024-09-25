@@ -39,7 +39,6 @@ const useSubitemColumns = (parentItemId: number) => {
                 id: column.id,
                 title: column.column.title,
                 type: column.type,
-                width: getColumnWidth(column),
               }),
             )
         columns.unshift({
@@ -47,9 +46,7 @@ const useSubitemColumns = (parentItemId: number) => {
           title: 'Name',
           type: 'name',
           value: response.data.items[0].subitems[0].name,
-          width: { min: '500px', max: '0.3fr' },
         })
-        columns[columns.length - 1].width = { min: '200px', max: '1fr' }
         setSubitemColumns(columns)
       } catch (error) {
         console.error('Failed to fetch subitem columns:', error)
