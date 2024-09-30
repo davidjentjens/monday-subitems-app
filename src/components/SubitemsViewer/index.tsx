@@ -10,41 +10,58 @@ import {
   TableRow,
   TextField,
 } from 'monday-ui-react-core'
-import React, { useMemo } from 'react'
+import React, { useMemo, useState } from 'react'
 import { Subitem, SubitemColumn, UserData } from 'src/interfaces'
 
+import { DeleteCell } from './components/DeleteCell'
 import { PeopleCell } from './components/PeopleCell'
 import { StatusCell } from './components/StatusCell'
+import { TableEmptyState } from './components/TableEmptyState'
 import { TextCell } from './components/TextCell'
 import { AppProvider } from './hooks'
-import useSubitemColumns from './hooks/useSubitemColumns'
 import useSubitems from './hooks/useSubitems'
 
 interface SubitemsViewerProps {
   parentItemId: number
 }
 
-export const SUPPORTED_COLUMN_TYPES = ['name', 'text', 'status', 'people']
-
 const SubitemsViewer: React.FC<SubitemsViewerProps> = ({ parentItemId }) => {
-  const { subitemColumns, loading: columnsLoading } =
-    useSubitemColumns(parentItemId)
   const {
     boardId,
     subitems,
-    loading: itemsLoading,
+    columns,
+    loading,
     addSubitem,
+    deleteSubitem,
     newSubitemName,
     onNewSubitemNameChange,
   } = useSubitems(parentItemId)
 
+  const [textInputBlurred, setTextInputBlurred] = useState(false)
+
   const statusColumnIds = useMemo(
     () =>
-      subitemColumns
+      columns
         .filter((column) => column.type === 'status')
         .map((column) => column.id),
-    [subitemColumns],
+    [columns],
   )
+
+  const subItemNameValidation = useMemo(() => {
+    const isValid = newSubitemName.length > 0
+
+    if (!textInputBlurred || isValid) {
+      return {
+        status: 'success' as any,
+        text: '',
+      }
+    }
+
+    return {
+      status: 'error',
+      text: 'Name cannot be empty',
+    }
+  }, [newSubitemName.length, textInputBlurred])
 
   const renderTableCell = (column: SubitemColumn, subitem: Subitem) => {
     switch (column.type) {
@@ -90,52 +107,59 @@ const SubitemsViewer: React.FC<SubitemsViewerProps> = ({ parentItemId }) => {
             columnId={column.id}
           />
         )
+      case 'delete':
+        return (
+          <DeleteCell
+            boardId={boardId}
+            subItemId={subitem.id}
+            deleteSubitem={deleteSubitem}
+          />
+        )
       default:
         return 'Unsupported column type'
     }
   }
 
   return (
-    <div>
+    <AppProvider boardId={boardId!} columnIds={statusColumnIds}>
       <Table
         dataState={{
-          isLoading: boardId === null || columnsLoading,
+          isLoading: loading,
+          isError: false,
         }}
-        columns={subitemColumns}
-        emptyState={<></>}
-        errorState={<></>}
+        columns={columns}
+        emptyState={<TableEmptyState />}
+        errorState={<div style={{ padding: 16 }}>Failed to load subitems</div>}
+        style={{ minWidth: '800px !important', overflowX: 'auto' }}
       >
-        <TableHeader className="table-header">
-          {subitemColumns.map((column) => (
-            <TableHeaderCell key={column.id} title={column.title} />
-          ))}
-        </TableHeader>
+        {columns.length === 0 ? (
+          <></>
+        ) : (
+          <TableHeader className="table-header">
+            {columns.map((column) => (
+              <TableHeaderCell key={column.id} title={column.title} />
+            ))}
+          </TableHeader>
+        )}
 
-        <AppProvider boardId={boardId!} columnIds={statusColumnIds}>
-          <TableBody>
-            {columnsLoading ? (
-              <></>
-            ) : (
-              subitems.map((subitem) => (
-                <TableRow key={subitem.id}>
-                  {subitemColumns.map((column) => (
-                    <TableCell key={column.id}>
-                      {renderTableCell(column, subitem)}
-                    </TableCell>
-                  ))}
-                </TableRow>
-              ))
-            )}
-          </TableBody>
-        </AppProvider>
+        <TableBody>
+          {subitems.map((subitem) => (
+            <TableRow key={subitem.id}>
+              {columns.map((column) => (
+                <TableCell key={column.id}>
+                  {renderTableCell(column, subitem)}
+                </TableCell>
+              ))}
+            </TableRow>
+          ))}
+        </TableBody>
       </Table>
       <div
         style={{
           display: 'flex',
           gap: 8,
-          alignItems: 'center',
-          marginTop: 16,
-          width: '80vw',
+          marginTop: 8,
+          width: '100%',
         }}
       >
         <TextField
@@ -143,17 +167,21 @@ const SubitemsViewer: React.FC<SubitemsViewerProps> = ({ parentItemId }) => {
           onChange={(value) => onNewSubitemNameChange(value)}
           placeholder="New subitem name"
           onKeyDown={(e) => e.key === 'Enter' && addSubitem()}
+          size={TextField.sizes.LARGE}
+          onFocus={() => setTextInputBlurred(false)}
+          onBlur={() => setTextInputBlurred(true)}
+          validation={subItemNameValidation}
         />
         <Button
           onClick={addSubitem}
-          loading={itemsLoading}
-          size={Button.sizes.SMALL}
-          kind={Button.kinds.SECONDARY}
+          loading={loading}
+          size={Button.sizes.LARGE}
+          kind={Button.kinds.PRIMARY}
         >
-          Add Subitem
+          + Add Subitem
         </Button>
       </div>
-    </div>
+    </AppProvider>
   )
 }
 

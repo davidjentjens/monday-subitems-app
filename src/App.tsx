@@ -5,7 +5,7 @@ import SubitemsViewer from './components/SubitemsViewer'
 import { monday } from './services'
 
 const App: React.FC = () => {
-  const [parentItemId, setParentItemId] = useState<number | null>(7259116397)
+  const [parentItemId, setParentItemId] = useState<number | null>(7340188171)
 
   useEffect(() => {
     const unsubscribe = monday.listen('context', (res) => {

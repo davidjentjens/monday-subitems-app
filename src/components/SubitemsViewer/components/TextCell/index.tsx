@@ -13,7 +13,6 @@ export const TextCell: React.FC<CellProps> = ({
   const [text, setText] = useState<string>(selectedValue)
 
   const updateSubitemCell = async (value: string) => {
-    // Assuming monday.api is a function to update the Monday table
     await monday.api(`
       mutation {
         change_simple_column_value(board_id: ${boardId}, item_id: ${subItemId}, column_id: "${columnId}", value: "${value}") {

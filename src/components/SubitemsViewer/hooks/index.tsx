@@ -2,7 +2,7 @@
 
 import { ReactNode } from 'react'
 
-import { StatusMapProvider } from './useStatusMap/context'
+import { StatusMapProvider } from './useStatusMap'
 import { UserDataProvider } from './useUserData'
 
 interface AppProviderProps {

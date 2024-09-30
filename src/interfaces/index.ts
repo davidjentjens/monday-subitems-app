@@ -1,8 +1,11 @@
+type Width = number | `${number}%` | `${number}px` | `${number}fr`
+
 export interface SubitemColumn {
   id: string
   title: string
   type: string
   value?: string
+  width?: Width
 }
 
 export interface Subitem {
@@ -33,6 +36,11 @@ export interface UserData {
     name: string
     id: string
   }
+}
+
+export interface StatusColumn {
+  id: string
+  settings_str: string
 }
 
 export interface StatusProps {

@@ -33,7 +33,6 @@ export const PeopleCell: React.FC<CellProps> = ({
   const { boardUserData } = useUserDataContext()
 
   const selectedUsers = useMemo(() => {
-    console.log(typeof selectedUserIds[0])
     return (
       selectedUserIds
         .map((userId) =>

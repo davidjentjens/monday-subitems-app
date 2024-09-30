@@ -8,7 +8,7 @@ import { useMemo, useState } from 'react'
 import { CellProps } from 'src/interfaces'
 import { monday } from 'src/services'
 
-import { useStatusMapContext } from '../../hooks/useStatusMap/context'
+import { useStatusMapContext } from '../../hooks/useStatusMap'
 import { StatusButton } from './components/StatusButton'
 
 export const StatusCell: React.FC<CellProps> = ({

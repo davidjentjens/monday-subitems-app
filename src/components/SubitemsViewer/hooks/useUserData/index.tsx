@@ -3,16 +3,6 @@ import React, { createContext, useContext, useEffect, useState } from 'react'
 import { UserData } from 'src/interfaces'
 import { monday } from 'src/services'
 
-interface UserDataContextProps {
-  boardId: number | null
-  boardUserData: UserData[]
-  loading: boolean
-}
-
-const UserDataContext = createContext<UserDataContextProps | undefined>(
-  undefined,
-)
-
 const fetchAllUserDataForBoard = async (): Promise<UserData[]> => {
   const query = `
     query {
@@ -43,6 +33,24 @@ const fetchAllUserDataForBoard = async (): Promise<UserData[]> => {
       },
     }),
   )
+}
+
+interface UserDataContextProps {
+  boardId: number | null
+  boardUserData: UserData[]
+  loading: boolean
+}
+
+const UserDataContext = createContext<UserDataContextProps | undefined>(
+  undefined,
+)
+
+export const useUserDataContext = (): UserDataContextProps => {
+  const context = useContext(UserDataContext)
+  if (!context) {
+    throw new Error('useUserDataContext must be used within a UserDataProvider')
+  }
+  return context
 }
 
 /**
@@ -88,12 +96,4 @@ export const UserDataProvider: React.FC<{
       {children}
     </UserDataContext.Provider>
   )
-}
-
-export const useUserDataContext = (): UserDataContextProps => {
-  const context = useContext(UserDataContext)
-  if (!context) {
-    throw new Error('useUserDataContext must be used within a UserDataProvider')
-  }
-  return context
 }

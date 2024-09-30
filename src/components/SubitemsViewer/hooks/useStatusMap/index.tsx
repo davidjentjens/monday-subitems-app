@@ -1,19 +1,12 @@
-import { useEffect, useState } from 'react'
-import { StatusMapState } from 'src/interfaces'
+import React, {
+  createContext,
+  ReactNode,
+  useContext,
+  useEffect,
+  useState,
+} from 'react'
+import { StatusColumn, StatusMapState, StatusProps } from 'src/interfaces'
 import { monday } from 'src/services'
-
-interface StatusColumn {
-  id: string
-  settings_str: string
-}
-
-interface StatusProps {
-  name: string
-  colorSettings: {
-    color: string
-    border: string
-  }
-}
 
 export const useStatusMap = (boardId: number | null, columnIds: string[]) => {
   const [statusMapStates, setStatusMapStates] = useState<StatusMapState[]>([])
@@ -74,4 +67,42 @@ export const useStatusMap = (boardId: number | null, columnIds: string[]) => {
   }, [columnIds, boardId])
 
   return statusMapStates
+}
+
+interface StatusMapContextProps {
+  statusMapStates: StatusMapState[]
+}
+
+const StatusMapContext = createContext<StatusMapContextProps | undefined>(
+  undefined,
+)
+
+export const useStatusMapContext = () => {
+  const context = useContext(StatusMapContext)
+  if (!context) {
+    throw new Error(
+      'useStatusMapContext must be used within a StatusMapProvider',
+    )
+  }
+  return context
+}
+
+interface StatusMapProviderProps {
+  boardId: number | null
+  columnIds: string[]
+  children: ReactNode
+}
+
+export const StatusMapProvider: React.FC<StatusMapProviderProps> = ({
+  boardId,
+  columnIds,
+  children,
+}) => {
+  const statusMapStates = useStatusMap(boardId, columnIds)
+
+  return (
+    <StatusMapContext.Provider value={{ statusMapStates }}>
+      {children}
+    </StatusMapContext.Provider>
+  )
 }
