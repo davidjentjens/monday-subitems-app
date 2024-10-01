@@ -34,12 +34,7 @@ export const PeopleCell: React.FC<CellProps> = ({
   const selectedUsers = useMemo(() => {
     return (
       selectedUserIds
-        .map((userId) =>
-          boardUserData.find((user) => {
-            console.log(typeof user.id, typeof userId)
-            return user.id === userId
-          }),
-        )
+        .map((userId) => boardUserData.find((user) => user.id === userId))
         // Filter out undefined values
         .filter((user) => user !== undefined) as UserData[]
     )
@@ -62,7 +57,6 @@ export const PeopleCell: React.FC<CellProps> = ({
     } else {
       updatedUserIds = [...selectedUserIds, userId]
     }
-    console.log(typeof updatedUserIds[0])
     setSelectedUserIds(updatedUserIds)
 
     await monday.api(`

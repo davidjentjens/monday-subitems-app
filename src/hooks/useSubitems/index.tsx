@@ -106,8 +106,6 @@ const useSubitems = (parentItemId: number) => {
     try {
       const response = await monday.api(query)
 
-      console.log(response.data.items)
-
       if (!response.data.items[0]) {
         console.error('No items found')
         return

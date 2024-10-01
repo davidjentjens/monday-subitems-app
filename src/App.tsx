@@ -10,7 +10,7 @@ const App: React.FC = () => {
 
   useEffect(() => {
     const unsubscribe = monday.listen('context', (res) => {
-      console.log('Context data:', res)
+      // console.log('Context data:', res)
       const itemId = (res.data as any)?.itemId
 
       if (itemId) {
