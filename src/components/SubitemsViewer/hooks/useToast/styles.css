@@ -1,0 +1,6 @@
+.custom-toast {
+    z-index: 1000;
+    height: 40px;
+    min-width: 300px;
+    max-width: 500px;
+}

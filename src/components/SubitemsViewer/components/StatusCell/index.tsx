@@ -9,6 +9,7 @@ import { CellProps } from 'src/interfaces'
 import { monday } from 'src/services'
 
 import { useStatusMapContext } from '../../hooks/useStatusMap'
+import { useToast } from '../../hooks/useToast'
 import { StatusButton } from './components/StatusButton'
 
 export const StatusCell: React.FC<CellProps> = ({
@@ -17,7 +18,8 @@ export const StatusCell: React.FC<CellProps> = ({
   subItemId,
   columnId,
 }) => {
-  const [loading, setLoading] = useState(false)
+  const { addToast } = useToast()
+
   const [dialogIsOpen, setDialogIsOpen] = useState(false)
   const [statusId, setStatusId] = useState<string>(selectedValue)
 
@@ -25,9 +27,11 @@ export const StatusCell: React.FC<CellProps> = ({
   const closeDialog = () => setDialogIsOpen(false)
   const changeStatus = (newStatusId: string) => {
     const updateStatus = async () => {
-      setLoading(true)
+      const previousStatusId = statusId
+
       try {
-        await monday.api(`mutation {
+        setStatusId(newStatusId)
+        const { data } = await monday.api(`mutation {
           change_column_value(
             board_id: ${boardId},
             item_id: ${subItemId},
@@ -37,11 +41,20 @@ export const StatusCell: React.FC<CellProps> = ({
             id
           }
         }`)
-        setStatusId(newStatusId)
+
+        if (data.errors) {
+          throw new Error(data.errors[0].message)
+        }
       } catch (error) {
+        setStatusId(previousStatusId)
+        addToast({
+          message:
+            'Error updating status. Please try again or contact support.',
+          type: 'negative',
+          timeToLive: 2000,
+        })
         console.error('Error updating status:', error)
       }
-      setLoading(false)
     }
 
     updateStatus()
@@ -76,7 +89,7 @@ export const StatusCell: React.FC<CellProps> = ({
     )
   }, [statusMapState])
 
-  if (loading || statusMapState === undefined) {
+  if (statusMapState === undefined) {
     return <Skeleton height={30} width={150} />
   }
 

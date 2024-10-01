@@ -12,7 +12,6 @@ export const DeleteCell: React.FC<DeleteCellProps> = ({
   subItemId,
   deleteSubitem,
 }) => {
-  const [loadingDelete, setLoadingDelete] = useState(false)
   const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false)
   const openModalButtonRef = useRef<HTMLButtonElement>(null)
 
@@ -24,10 +23,8 @@ export const DeleteCell: React.FC<DeleteCellProps> = ({
   }, [])
 
   const clickDeleteSubitem = async () => {
-    setLoadingDelete(true)
-    await deleteSubitem(subItemId)
-    setLoadingDelete(false)
     closeModal()
+    await deleteSubitem(subItemId)
   }
 
   return (
@@ -46,11 +43,7 @@ export const DeleteCell: React.FC<DeleteCellProps> = ({
               Are you sure you want to delete this subitem?
             </p>
             <Flex gap={16} justify={Flex.justify.END}>
-              <Button
-                onClick={clickDeleteSubitem}
-                loading={loadingDelete}
-                kind={Button.kinds.PRIMARY}
-              >
+              <Button onClick={clickDeleteSubitem} kind={Button.kinds.PRIMARY}>
                 Delete
               </Button>
               <Button onClick={closeModal} kind={Button.kinds.SECONDARY}>
@@ -63,7 +56,6 @@ export const DeleteCell: React.FC<DeleteCellProps> = ({
       <Button
         onClick={openModal}
         ariaLabel="Delete"
-        loading={loadingDelete}
         kind={Button.kinds.TERTIARY}
       >
         <DeleteIcon />
