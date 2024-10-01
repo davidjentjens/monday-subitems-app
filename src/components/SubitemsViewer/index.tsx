@@ -11,6 +11,8 @@ import {
   TextField,
 } from 'monday-ui-react-core'
 import React, { useCallback, useMemo, useState } from 'react'
+import { AppProvider } from 'src/hooks'
+import useSubitems from 'src/hooks/useSubitems'
 import { Subitem, SubitemColumn, UserData } from 'src/interfaces'
 
 import { DeleteCell } from './components/DeleteCell'
@@ -18,8 +20,6 @@ import { PeopleCell } from './components/PeopleCell'
 import { StatusCell } from './components/StatusCell'
 import { TableEmptyState } from './components/TableEmptyState'
 import { TextCell } from './components/TextCell'
-import { AppProvider } from './hooks'
-import useSubitems from './hooks/useSubitems'
 
 interface SubitemsViewerProps {
   parentItemId: number

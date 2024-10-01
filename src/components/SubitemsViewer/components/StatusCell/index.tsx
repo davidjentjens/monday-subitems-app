@@ -5,11 +5,11 @@ import {
   Skeleton,
 } from 'monday-ui-react-core'
 import { useMemo, useState } from 'react'
+import { useStatusMapContext } from 'src/hooks/useStatusMap'
+import { useToast } from 'src/hooks/useToast'
 import { CellProps } from 'src/interfaces'
 import { monday } from 'src/services'
 
-import { useStatusMapContext } from '../../hooks/useStatusMap'
-import { useToast } from '../../hooks/useToast'
 import { StatusButton } from './components/StatusButton'
 
 export const StatusCell: React.FC<CellProps> = ({

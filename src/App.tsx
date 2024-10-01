@@ -2,7 +2,7 @@ import { Table } from 'monday-ui-react-core'
 import React, { useEffect, useState } from 'react'
 
 import SubitemsViewer from './components/SubitemsViewer'
-import { ToastProvider } from './components/SubitemsViewer/hooks/useToast'
+import { ToastProvider } from './hooks/useToast'
 import { monday } from './services'
 
 const App: React.FC = () => {
