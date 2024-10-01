@@ -13,10 +13,9 @@ import {
 } from 'monday-ui-react-core'
 import { useMemo, useState } from 'react'
 import maleIcon from 'src/assets/maleIcon.png'
+import { useUserDataContext } from 'src/hooks/useUserData'
 import { CellProps, UserData } from 'src/interfaces'
 import { monday } from 'src/services'
-
-import { useUserDataContext } from '../../hooks/useUserData'
 
 export const PeopleCell: React.FC<CellProps> = ({
   boardId,

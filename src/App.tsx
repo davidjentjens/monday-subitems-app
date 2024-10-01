@@ -2,6 +2,7 @@ import { Table } from 'monday-ui-react-core'
 import React, { useEffect, useState } from 'react'
 
 import SubitemsViewer from './components/SubitemsViewer'
+import { ToastProvider } from './hooks/useToast'
 import { monday } from './services'
 
 const App: React.FC = () => {
@@ -23,7 +24,7 @@ const App: React.FC = () => {
   }, [])
 
   return (
-    <div>
+    <ToastProvider>
       {parentItemId === null ? (
         <Table
           dataState={{
@@ -36,7 +37,7 @@ const App: React.FC = () => {
       ) : (
         <SubitemsViewer parentItemId={parentItemId} />
       )}
-    </div>
+    </ToastProvider>
   )
 }
 

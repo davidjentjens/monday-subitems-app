@@ -2,6 +2,8 @@ import { useCallback, useEffect, useState } from 'react'
 import { Subitem, SubitemColumn } from 'src/interfaces'
 import { monday } from 'src/services'
 
+import { useToast } from '../useToast'
+
 export const SUPPORTED_COLUMN_TYPES = [
   'name',
   'text',
@@ -11,6 +13,8 @@ export const SUPPORTED_COLUMN_TYPES = [
 ]
 
 const useSubitems = (parentItemId: number) => {
+  const { addToast, removeToast } = useToast()
+
   const [boardId, setBoardId] = useState<number | null>(null)
 
   const [subitems, setSubitems] = useState<Subitem[]>([])
@@ -154,52 +158,89 @@ const useSubitems = (parentItemId: number) => {
   }, [fetchSubitemColumns, fetchSubitems])
 
   const addSubitem = useCallback(async () => {
-    if (!newSubitemName) return
-    setLoading(true)
+    if (!newSubitemName) {
+      addToast({
+        message: 'Name cannot be empty',
+        type: 'negative',
+        timeToLive: 1000,
+      })
+      return
+    }
+
+    const toastId = addToast({
+      message: 'Adding subitem...',
+      type: 'positive',
+      loading: true,
+    })
     try {
       setNewSubitemName('')
-      await monday.api<{
-        data: { create_subitem: { id: string } }
-      }>(
+      const { data } = await monday.api(
         `mutation {
             create_subitem (parent_item_id: ${parentItemId}, item_name: "${newSubitemName}") {
                 id
             }
         }`,
       )
+
+      if (data.errors) {
+        throw new Error(data.errors[0].message)
+      }
+
       await loadTable()
+      removeToast(toastId)
+      addToast({
+        message: 'Subitem added successfully',
+        type: 'positive',
+        timeToLive: 1000,
+      })
     } catch (error) {
+      addToast({
+        message: 'Error adding subitem. Please try again or contact support.',
+        type: 'negative',
+        timeToLive: 2000,
+      })
       console.error('Error adding subitem:', error)
     }
-    setLoading(false)
-  }, [loadTable, newSubitemName, parentItemId])
+  }, [addToast, loadTable, newSubitemName, parentItemId, removeToast])
 
   const deleteSubitem = useCallback(
     async (subItemId: string) => {
-      setLoading(true)
+      const toastId = addToast({
+        message: 'Deleting subitem...',
+        type: 'positive',
+        loading: true,
+      })
       try {
-        await monday.api(`
+        const { data } = await monday.api(`
           mutation {
             delete_item (item_id: ${subItemId}) {
               id
             }
           }
         `)
-        setSubitems((prevSubitems) =>
-          prevSubitems.filter((subitem) => subitem.id !== subItemId),
-        )
-        await loadTable()
 
-        // If there are no subitems left, remove the columns
-        if (subitems.length === 0) {
-          setColumns([])
+        if (data.errors) {
+          throw new Error(data.errors[0].message)
         }
+
+        await loadTable()
+        removeToast(toastId)
+        addToast({
+          message: 'Subitem deleted successfully',
+          type: 'positive',
+          timeToLive: 1000,
+        })
       } catch (error) {
+        addToast({
+          message:
+            'Error deleting subitem. Please try again or contact support.',
+          type: 'negative',
+          timeToLive: 2000,
+        })
         console.error('Error deleting subitem:', error)
       }
-      setLoading(false)
     },
-    [loadTable, subitems.length],
+    [addToast, loadTable, removeToast],
   )
 
   useEffect(() => {

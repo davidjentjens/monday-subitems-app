@@ -10,7 +10,9 @@ import {
   TableRow,
   TextField,
 } from 'monday-ui-react-core'
-import React, { useMemo, useState } from 'react'
+import React, { useCallback, useMemo, useState } from 'react'
+import { AppProvider } from 'src/hooks'
+import useSubitems from 'src/hooks/useSubitems'
 import { Subitem, SubitemColumn, UserData } from 'src/interfaces'
 
 import { DeleteCell } from './components/DeleteCell'
@@ -18,8 +20,6 @@ import { PeopleCell } from './components/PeopleCell'
 import { StatusCell } from './components/StatusCell'
 import { TableEmptyState } from './components/TableEmptyState'
 import { TextCell } from './components/TextCell'
-import { AppProvider } from './hooks'
-import useSubitems from './hooks/useSubitems'
 
 interface SubitemsViewerProps {
   parentItemId: number
@@ -37,7 +37,7 @@ const SubitemsViewer: React.FC<SubitemsViewerProps> = ({ parentItemId }) => {
     onNewSubitemNameChange,
   } = useSubitems(parentItemId)
 
-  const [textInputBlurred, setTextInputBlurred] = useState(false)
+  const [validationError, setValidationError] = useState(false)
 
   const statusColumnIds = useMemo(
     () =>
@@ -50,7 +50,7 @@ const SubitemsViewer: React.FC<SubitemsViewerProps> = ({ parentItemId }) => {
   const subItemNameValidation = useMemo(() => {
     const isValid = newSubitemName.length > 0
 
-    if (!textInputBlurred || isValid) {
+    if (!validationError || isValid) {
       return {
         status: 'success' as any,
         text: '',
@@ -61,62 +61,74 @@ const SubitemsViewer: React.FC<SubitemsViewerProps> = ({ parentItemId }) => {
       status: 'error',
       text: 'Name cannot be empty',
     }
-  }, [newSubitemName.length, textInputBlurred])
+  }, [newSubitemName.length, validationError])
 
-  const renderTableCell = (column: SubitemColumn, subitem: Subitem) => {
-    switch (column.type) {
-      case 'name':
-        return (
-          <TextCell
-            boardId={boardId}
-            subItemId={subitem.id}
-            selectedValue={subitem.name}
-            columnId={column.id}
-          />
-        )
-      case 'text':
-        return (
-          <TextCell
-            boardId={boardId}
-            subItemId={subitem.id}
-            selectedValue={subitem[column.id]?.value ?? ''}
-            columnId={column.id}
-          />
-        )
-      case 'status':
-        return (
-          <StatusCell
-            boardId={boardId}
-            subItemId={subitem.id}
-            selectedValue={subitem[column.id].value?.index}
-            columnId={column.id}
-          />
-        )
-      case 'people':
-        return (
-          <PeopleCell
-            boardId={boardId}
-            subItemId={subitem.id}
-            selectedValue={
-              subitem[column.id]?.value
-                ? subitem[column.id]?.value.personsAndTeams.map(
-                    (user: UserData) => user.id.toString(),
-                  )
-                : []
-            }
-            columnId={column.id}
-          />
-        )
-      case 'delete':
-        return (
-          <DeleteCell
-            boardId={boardId}
-            subItemId={subitem.id}
-            deleteSubitem={deleteSubitem}
-          />
-        )
-      default:
-        return 'Unsupported column type'
+  const renderTableCell = useCallback(
+    (column: SubitemColumn, subitem: Subitem) => {
+      switch (column.type) {
+        case 'name':
+          return (
+            <TextCell
+              boardId={boardId}
+              subItemId={subitem.id}
+              selectedValue={subitem.name}
+              columnId={column.id}
+            />
+          )
+        case 'text':
+          return (
+            <TextCell
+              boardId={boardId}
+              subItemId={subitem.id}
+              selectedValue={subitem[column.id]?.value ?? ''}
+              columnId={column.id}
+            />
+          )
+        case 'status':
+          return (
+            <StatusCell
+              boardId={boardId}
+              subItemId={subitem.id}
+              selectedValue={subitem[column.id].value?.index}
+              columnId={column.id}
+            />
+          )
+        case 'people':
+          return (
+            <PeopleCell
+              boardId={boardId}
+              subItemId={subitem.id}
+              selectedValue={
+                subitem[column.id]?.value
+                  ? subitem[column.id]?.value.personsAndTeams.map(
+                      (user: UserData) => user.id.toString(),
+                    )
+                  : []
+              }
+              columnId={column.id}
+            />
+          )
+        case 'delete':
+          return (
+            <DeleteCell
+              boardId={boardId}
+              subItemId={subitem.id}
+              deleteSubitem={deleteSubitem}
+            />
+          )
+        default:
+          return 'Unsupported column type'
+      }
+    },
+    [boardId, deleteSubitem],
+  )
+
+  const clickAddSubitem = () => {
+    if (newSubitemName.length === 0) {
+      setValidationError(true)
+    } else {
+      setValidationError(false)
+      addSubitem()
     }
   }
 
@@ -168,13 +180,10 @@ const SubitemsViewer: React.FC<SubitemsViewerProps> = ({ parentItemId }) => {
           placeholder="New subitem name"
           onKeyDown={(e) => e.key === 'Enter' && addSubitem()}
           size={TextField.sizes.LARGE}
-          onFocus={() => setTextInputBlurred(false)}
-          onBlur={() => setTextInputBlurred(true)}
           validation={subItemNameValidation}
         />
         <Button
-          onClick={addSubitem}
-          loading={loading}
+          onClick={clickAddSubitem}
           size={Button.sizes.LARGE}
           kind={Button.kinds.PRIMARY}
         >
