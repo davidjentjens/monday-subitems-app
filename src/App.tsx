@@ -6,7 +6,7 @@ import { ToastProvider } from './hooks/useToast'
 import { monday } from './services'
 
 const App: React.FC = () => {
-  const [parentItemId, setParentItemId] = useState<number | null>(7340188171)
+  const [parentItemId, setParentItemId] = useState<number | null>()
 
   useEffect(() => {
     const unsubscribe = monday.listen('context', (res) => {
@@ -25,7 +25,7 @@ const App: React.FC = () => {
 
   return (
     <ToastProvider>
-      {parentItemId === null ? (
+      {!parentItemId ? (
         <Table
           dataState={{
             isLoading: true,

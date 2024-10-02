@@ -1,7 +1,7 @@
 {
   "name": "monday-subitems-app",
   "private": true,
-  "version": "10.0.0",
+  "version": "15.0.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -10,7 +10,7 @@
     "lint": "eslint --fix",
     "preview": "vite preview",
     "start": "serve -s dist -l 8080",
-    "deploy": "tsc -b && vite build && mapps code:push -i 10374902"
+    "deploy": "tsc -b && vite build && mapps code:push -i 10376646"
   },
   "dependencies": {
     "dotenv": "^16.4.5",
