@@ -10,6 +10,7 @@ export const SUPPORTED_COLUMN_TYPES = [
   'status',
   'people',
   'delete',
+  'numbers',
 ]
 
 const useSubitems = (parentItemId: number) => {
@@ -39,6 +40,7 @@ const useSubitems = (parentItemId: number) => {
                                 type
                                 column {
                                     title
+                                    settings_str
                                 }
                             }
                         }
@@ -56,12 +58,15 @@ const useSubitems = (parentItemId: number) => {
 
       const columns: SubitemColumn[] =
         response.data.items[0].subitems[0].column_values
-          .filter((column: any) => SUPPORTED_COLUMN_TYPES.includes(column.type))
+          .filter((columnValue: any) =>
+            SUPPORTED_COLUMN_TYPES.includes(columnValue.type),
+          )
           .map(
-            (column: any): SubitemColumn => ({
-              id: column.id,
-              title: column.column.title,
-              type: column.type,
+            (columnValue: any): SubitemColumn => ({
+              id: columnValue.id,
+              title: columnValue.column.title,
+              type: columnValue.type,
+              settings: JSON.parse(columnValue.column.settings_str),
             }),
           )
       columns.unshift({

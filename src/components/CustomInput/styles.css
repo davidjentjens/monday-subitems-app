@@ -1,0 +1,57 @@
+.customInput {
+    font-family: 'Roboto', sans-serif;
+    font-size: 14px;
+    border-radius: 5px;
+    padding: 5px 10px;
+    width: 100%;
+    cursor: pointer;
+    // Overflow with ellipsis
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.clearButton {
+    position: absolute;
+    right: 0px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.clearButton:hover {
+    background-color: #f0f0f0;
+}
+
+input {
+    border: none;
+    outline: 1px solid #e0e0e0;
+    outline-offset: -1px;
+    width: 100%;
+    padding: 5px 10px;
+    font-family: 'Roboto', sans-serif;
+    font-size: 14px;
+    border-radius: 5px;
+}
+
+.hoveredEditBox {
+    background-color: #fefefe;
+}
+
+/* Chrome, Safari, Edge, Opera */
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Firefox */
+input[type=number] {
+  -moz-appearance: textfield;
+}

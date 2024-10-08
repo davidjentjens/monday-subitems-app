@@ -1,6 +1,6 @@
 import { debounce } from 'lodash'
-import { EditableText } from 'monday-ui-react-core'
 import { useCallback, useState } from 'react'
+import CustomInput from 'src/components/CustomInput'
 import { CellProps } from 'src/interfaces'
 import { monday } from 'src/services'
 
@@ -10,7 +10,7 @@ export const TextCell: React.FC<CellProps> = ({
   subItemId,
   columnId,
 }) => {
-  const [text, setText] = useState<string>(selectedValue)
+  const [text, setText] = useState<string>(selectedValue || '')
 
   const updateSubitemCell = async (value: string) => {
     await monday.api(`
@@ -34,5 +34,5 @@ export const TextCell: React.FC<CellProps> = ({
     debouncedUpdate(value)
   }
 
-  return <EditableText value={text} onChange={handleChange} />
+  return <CustomInput value={text} onChange={handleChange} />
 }

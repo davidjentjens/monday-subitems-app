@@ -16,6 +16,7 @@ import useSubitems from 'src/hooks/useSubitems'
 import { Subitem, SubitemColumn, UserData } from 'src/interfaces'
 
 import { DeleteCell } from './components/DeleteCell'
+import { NumbersCell } from './components/NumbersCell'
 import { PeopleCell } from './components/PeopleCell'
 import { StatusCell } from './components/StatusCell'
 import { TableEmptyState } from './components/TableEmptyState'
@@ -82,6 +83,16 @@ const SubitemsViewer: React.FC<SubitemsViewerProps> = ({ parentItemId }) => {
               subItemId={subitem.id}
               selectedValue={subitem[column.id]?.value ?? ''}
               columnId={column.id}
+            />
+          )
+        case 'numbers':
+          return (
+            <NumbersCell
+              boardId={boardId}
+              subItemId={subitem.id}
+              selectedValue={subitem[column.id]?.value ?? ''}
+              columnId={column.id}
+              columns={columns}
             />
           )
         case 'status':

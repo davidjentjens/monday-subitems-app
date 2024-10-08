@@ -4,6 +4,7 @@ export interface SubitemColumn {
   id: string
   title: string
   type: string
+  settings?: any
   value?: string
   width?: Width
 }
@@ -56,4 +57,12 @@ export interface StatusMapState {
   statusMap: { [key: number]: StatusProps }
   positions: { [key: number]: number }
   loading: boolean
+}
+
+export interface NumberSettings {
+  unit: {
+    symbol: '$' | '€' | '£' | '%' | 'custom' | string
+    custom_unit: string
+    direction: 'left' | 'right'
+  }
 }
