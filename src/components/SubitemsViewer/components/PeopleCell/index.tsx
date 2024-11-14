@@ -66,6 +66,8 @@ export const PeopleCell: React.FC<CellProps> = ({
         }
       }
     `)
+
+    await monday.execute('valueCreatedForUser')
   }
 
   const removeUser = async (userId: string) => {

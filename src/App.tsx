@@ -6,7 +6,7 @@ import { ToastProvider } from './hooks/useToast'
 import { monday } from './services'
 
 const App: React.FC = () => {
-  const [parentItemId, setParentItemId] = useState<number | null>()
+  const [parentItemId, setParentItemId] = useState<number | null>(7552836936)
 
   useEffect(() => {
     const unsubscribe = monday.listen('context', (res) => {

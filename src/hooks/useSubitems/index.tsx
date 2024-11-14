@@ -196,6 +196,7 @@ const useSubitems = (parentItemId: number) => {
         type: 'positive',
         timeToLive: 1000,
       })
+      await monday.execute('valueCreatedForUser')
     } catch (error) {
       addToast({
         message: 'Error adding subitem. Please try again or contact support.',
@@ -233,6 +234,7 @@ const useSubitems = (parentItemId: number) => {
           type: 'positive',
           timeToLive: 1000,
         })
+        await monday.execute('valueCreatedForUser')
       } catch (error) {
         addToast({
           message:

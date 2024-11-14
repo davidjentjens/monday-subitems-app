@@ -28,6 +28,8 @@ export const NumbersCell: React.FC<NumbersCellProps> = ({
         }
       }
     `)
+
+    await monday.execute('valueCreatedForUser')
   }
 
   const debouncedUpdate = useCallback(

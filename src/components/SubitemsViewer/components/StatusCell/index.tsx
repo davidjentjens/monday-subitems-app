@@ -27,6 +27,8 @@ export const StatusCell: React.FC<CellProps> = ({
   const closeDialog = () => setDialogIsOpen(false)
   const changeStatus = (newStatusId: string) => {
     const updateStatus = async () => {
+      await monday.execute('valueCreatedForUser')
+
       const previousStatusId = statusId
 
       try {

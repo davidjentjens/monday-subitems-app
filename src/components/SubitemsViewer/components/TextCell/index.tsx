@@ -20,6 +20,8 @@ export const TextCell: React.FC<CellProps> = ({
         }
       }
     `)
+
+    await monday.execute('valueCreatedForUser')
   }
 
   const debouncedUpdate = useCallback(
