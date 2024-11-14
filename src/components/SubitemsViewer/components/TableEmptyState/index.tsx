@@ -30,8 +30,7 @@ export const TableEmptyState: React.FC = () => (
         textAlign: 'center',
       }}
     >
-      Be the first to add a subitem to this item and start collaborating with
-      your team!
+      Be the first to add a subitem and start collaborating!
     </Text>
   </Flex>
 )
