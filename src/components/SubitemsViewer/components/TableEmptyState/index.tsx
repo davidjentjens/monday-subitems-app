@@ -24,13 +24,6 @@ export const TableEmptyState: React.FC = () => (
       id="empty-state-id"
       value="No subtitems yet for this item"
     />
-    <Text
-      style={{
-        width: '50%',
-        textAlign: 'center',
-      }}
-    >
-      Be the first to add a subitem and start collaborating!
-    </Text>
+    <Text>Be the first to add a subitem and start collaborating!</Text>
   </Flex>
 )
