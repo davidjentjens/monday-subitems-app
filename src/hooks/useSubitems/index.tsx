@@ -170,6 +170,14 @@ const useSubitems = (parentItemId: number) => {
       return
     }
 
+    if (/[<>]/.test(newSubitemName)) {
+      return addToast({
+        message: 'Name cannot include special characters < >',
+        type: 'negative',
+        timeToLive: 1000,
+      })
+    }
+
     const toastId = addToast({
       message: 'Adding subitem...',
       type: 'positive',
