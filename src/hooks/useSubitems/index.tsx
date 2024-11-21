@@ -1,3 +1,4 @@
+import DOMPurify from 'dompurify'
 import { useCallback, useEffect, useState } from 'react'
 import { MondayEvent, Subitem, SubitemColumn } from 'src/interfaces'
 import { monday } from 'src/services'
@@ -58,13 +59,15 @@ const useSubitems = (parentItemId: number) => {
       return
     }
 
-    if (/[<>]/.test(state.newSubitemName)) {
+    if (/[<>"]/.test(state.newSubitemName)) {
       return addToast({
-        message: 'Name cannot include special characters < >',
+        message: 'Name cannot include special characters < > and "',
         type: 'negative',
         timeToLive: 1000,
       })
     }
+
+    const purifiedInput = DOMPurify.sanitize(state.newSubitemName)
 
     const toastId = addToast({
       message: 'Adding subitem...',
@@ -74,10 +77,7 @@ const useSubitems = (parentItemId: number) => {
 
     try {
       setState((prev) => ({ ...prev, newSubitemName: '' }))
-      const data = await subitemApi.createSubitem(
-        parentItemId,
-        state.newSubitemName,
-      )
+      const data = await subitemApi.createSubitem(parentItemId, purifiedInput)
 
       if (data.errors) {
         throw new Error(data.errors[0].message)

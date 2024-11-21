@@ -13,6 +13,7 @@
     "deploy": "tsc -b && vite build && mapps code:push -i 10439868 --verbose"
   },
   "dependencies": {
+    "dompurify": "^3.2.1",
     "dotenv": "^16.4.5",
     "lodash": "^4.17.21",
     "lucide-react": "^0.451.0",
