@@ -66,3 +66,10 @@ export interface NumberSettings {
     direction: 'left' | 'right'
   }
 }
+
+export interface MondayEvent {
+  type: string
+  itemIds?: number[]
+  parentItemId?: number
+  boardId?: number
+}

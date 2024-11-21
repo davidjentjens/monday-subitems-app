@@ -1,167 +1,55 @@
 import { useCallback, useEffect, useState } from 'react'
-import { Subitem, SubitemColumn } from 'src/interfaces'
+import { MondayEvent, Subitem, SubitemColumn } from 'src/interfaces'
 import { monday } from 'src/services'
 
 import { useToast } from '../useToast'
-
-export const SUPPORTED_COLUMN_TYPES = [
-  'name',
-  'text',
-  'status',
-  'people',
-  'delete',
-  'numbers',
-]
+import { subitemApi } from './api'
+import {
+  shouldRefreshOnEvent,
+  shouldRefreshOnItemChange,
+} from './eventHandlers'
 
 const useSubitems = (parentItemId: number) => {
   const { addToast, removeToast } = useToast()
 
-  const [boardId, setBoardId] = useState<number | null>(null)
+  const [state, setState] = useState({
+    boardId: null as number | null,
+    subitems: [] as Subitem[],
+    columns: [] as SubitemColumn[],
+    loading: false,
+    newSubitemName: '',
+  })
 
-  const [subitems, setSubitems] = useState<Subitem[]>([])
-  const [columns, setColumns] = useState<SubitemColumn[]>([])
-
-  const [loading, setLoading] = useState(false)
-
-  const [newSubitemName, setNewSubitemName] = useState('')
   const onNewSubitemNameChange = (value: string) => {
-    setNewSubitemName(value)
+    setState((prev) => ({ ...prev, newSubitemName: value }))
   }
 
-  const fetchSubitemColumns = useCallback(async () => {
-    setLoading(true)
-    const query = `
-                query {
-                    items(ids: ${parentItemId}) {
-                        subitems {
-                            name
-                            column_values {
-                                id
-                                type
-                                column {
-                                    title
-                                    settings_str
-                                }
-                            }
-                        }
-                    }
-                }
-            `
-    try {
-      const response = await monday.api(query)
-
-      if (!response.data.items[0].subitems[0]) {
-        setColumns([])
-        setLoading(false)
-        return
-      }
-
-      const columns: SubitemColumn[] =
-        response.data.items[0].subitems[0].column_values
-          .filter((columnValue: any) =>
-            SUPPORTED_COLUMN_TYPES.includes(columnValue.type),
-          )
-          .map(
-            (columnValue: any): SubitemColumn => ({
-              id: columnValue.id,
-              title: columnValue.column.title,
-              type: columnValue.type,
-              settings: JSON.parse(columnValue.column.settings_str),
-            }),
-          )
-      columns.unshift({
-        id: 'name',
-        title: 'Name',
-        type: 'name',
-        value: response.data.items[0].subitems[0].name,
-      })
-      columns.push({
-        id: 'delete',
-        title: '',
-        type: 'delete',
-        width: '100px',
-      })
-      setColumns(columns)
-    } catch (error) {
-      console.error('Failed to fetch subitem columns:', error)
-    }
-    setLoading(false)
-  }, [parentItemId])
-
-  const fetchSubitems = useCallback(async () => {
-    setLoading(true)
-    const query = `
-            query {
-                items(ids: ${parentItemId}) {
-                    subitems {
-                        board {
-                            id
-                        }
-                        id
-                        name
-                        column_values {
-                            id
-                            type
-                            value
-                        }
-                    }
-                }
-            }
-        `
-    try {
-      const response = await monday.api(query)
-
-      if (!response.data.items[0]) {
-        console.error('No items found')
-        return
-      }
-
-      if (response.data.items[0].subitems.length === 0) {
-        setSubitems([])
-        setLoading(false)
-        return
-      }
-
-      setBoardId(response.data.items[0].subitems[0].board.id)
-
-      if (response.data.items[0].subitems.length === 0) {
-        setLoading(false)
-        setSubitems([])
-        return
-      }
-
-      const items: Subitem[] = response.data.items[0].subitems.map(
-        (subitem: any): Subitem => ({
-          id: subitem.id,
-          name: subitem.name,
-          ...subitem.column_values
-            // Filter out unsupported column types
-            .filter((column: any) =>
-              SUPPORTED_COLUMN_TYPES.includes(column.type),
-            )
-            // Convert column values to JSON, and add them to the subitem object
-            .reduce((acc: any, column: any) => {
-              acc[column.id] = {
-                ...column,
-                value: JSON.parse(column.value),
-              }
-              return acc
-            }, {}),
-        }),
-      )
-      setSubitems(items)
-    } catch (error) {
-      console.error('Failed to fetch subitems:', error)
-    }
-    setLoading(false)
-  }, [parentItemId])
+  const setLoading = (loading: boolean) => {
+    setState((prev) => ({ ...prev, loading }))
+  }
 
   const loadTable = useCallback(async () => {
-    await Promise.all([fetchSubitems(), fetchSubitemColumns()])
-  }, [fetchSubitemColumns, fetchSubitems])
+    setLoading(true)
+    try {
+      const [columns, { items, boardId }] = await Promise.all([
+        subitemApi.fetchColumns(parentItemId),
+        subitemApi.fetchSubitems(parentItemId),
+      ])
+      setState((prev) => ({
+        ...prev,
+        columns,
+        subitems: items,
+        boardId,
+      }))
+    } catch (error) {
+      console.error('Failed to load table:', error)
+    } finally {
+      setLoading(false)
+    }
+  }, [parentItemId])
 
   const addSubitem = useCallback(async () => {
-    if (!newSubitemName) {
+    if (!state.newSubitemName) {
       addToast({
         message: 'Name cannot be empty',
         type: 'negative',
@@ -170,7 +58,7 @@ const useSubitems = (parentItemId: number) => {
       return
     }
 
-    if (/[<>]/.test(newSubitemName)) {
+    if (/[<>]/.test(state.newSubitemName)) {
       return addToast({
         message: 'Name cannot include special characters < >',
         type: 'negative',
@@ -183,14 +71,12 @@ const useSubitems = (parentItemId: number) => {
       type: 'positive',
       loading: true,
     })
+
     try {
-      setNewSubitemName('')
-      const { data } = await monday.api(
-        `mutation {
-            create_subitem (parent_item_id: ${parentItemId}, item_name: "${newSubitemName}") {
-                id
-            }
-        }`,
+      setState((prev) => ({ ...prev, newSubitemName: '' }))
+      const data = await subitemApi.createSubitem(
+        parentItemId,
+        state.newSubitemName,
       )
 
       if (data.errors) {
@@ -213,7 +99,7 @@ const useSubitems = (parentItemId: number) => {
       })
       console.error('Error adding subitem:', error)
     }
-  }, [addToast, loadTable, newSubitemName, parentItemId, removeToast])
+  }, [addToast, loadTable, state.newSubitemName, parentItemId, removeToast])
 
   const deleteSubitem = useCallback(
     async (subItemId: string) => {
@@ -222,14 +108,9 @@ const useSubitems = (parentItemId: number) => {
         type: 'positive',
         loading: true,
       })
+
       try {
-        const { data } = await monday.api(`
-          mutation {
-            delete_item (item_id: ${subItemId}) {
-              id
-            }
-          }
-        `)
+        const data = await subitemApi.deleteSubitem(subItemId)
 
         if (data.errors) {
           throw new Error(data.errors[0].message)
@@ -257,18 +138,54 @@ const useSubitems = (parentItemId: number) => {
   )
 
   useEffect(() => {
+    const unsubscribeEvents = monday.listen(
+      'events',
+      (res: { data: Record<string, any> & MondayEvent }) => {
+        console.log('event', res)
+
+        if (
+          shouldRefreshOnEvent(
+            res.data,
+            parentItemId,
+            state.boardId,
+            state.subitems,
+          )
+        ) {
+          loadTable()
+        }
+      },
+    )
+
+    const unsubscribeItemChanges = monday.listen(
+      ['itemIds'],
+      (res: { data: { itemIds: number[] } }) => {
+        if (
+          shouldRefreshOnItemChange(
+            res.data.itemIds || [],
+            parentItemId,
+            state.subitems,
+          )
+        ) {
+          loadTable()
+        }
+      },
+    )
+
+    return () => {
+      unsubscribeEvents()
+      unsubscribeItemChanges()
+    }
+  }, [state.boardId, loadTable, parentItemId, state.subitems])
+
+  useEffect(() => {
     loadTable()
   }, [loadTable, parentItemId])
 
   return {
-    boardId,
-    subitems,
-    columns,
-    loading,
-    fetchSubitems,
+    ...state,
+    fetchSubitems: loadTable,
     addSubitem,
     deleteSubitem,
-    newSubitemName,
     onNewSubitemNameChange,
   }
 }
