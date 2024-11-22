@@ -2,13 +2,7 @@ import './styles.css'
 
 import DOMPurify from 'dompurify'
 import { X } from 'lucide-react'
-import React, {
-  InputHTMLAttributes,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from 'react'
+import React, { InputHTMLAttributes, useEffect, useRef, useState } from 'react'
 import { NumberSettings } from 'src/interfaces'
 
 interface CustomInputProps {
@@ -28,41 +22,37 @@ const CustomInput: React.FC<CustomInputProps> = ({
 }) => {
   const [isEditing, setIsEditing] = useState(false)
   const [isHovered, setIsHovered] = useState(false)
-  const [inputValue, setInputValue] = useState(DOMPurify.sanitize(value))
+  const [displayValue, setDisplayValue] = useState('')
+  const [inputValue, setInputValue] = useState('')
   const inputRef = useRef<HTMLInputElement>(null)
 
   const formatDecimalNumber = (val: string) => {
-    if (type === 'number' && val.startsWith('.')) {
-      return `0${val}`
+    if (!val) return val
+    const sanitizedValue = DOMPurify.sanitize(val)
+    if (type === 'number') {
+      if (sanitizedValue.startsWith('.')) {
+        return `0${sanitizedValue}`
+      }
+      // Handle case where user is typing
+      if (sanitizedValue === '-' || sanitizedValue === '.') {
+        return sanitizedValue
+      }
     }
-    return val
+    return sanitizedValue
   }
 
-  const formattedValue = useMemo(() => {
-    const sanitizedValue = DOMPurify.sanitize(inputValue)
-    const formattedNumber = formatDecimalNumber(sanitizedValue)
+  const getFormattedValueWithUnit = (val: string) => {
+    if (!val || !numberSettings?.unit) return val
 
-    if (
-      type !== 'number' ||
-      !numberSettings ||
-      !numberSettings.unit ||
-      !formattedNumber
-    ) {
-      return formattedNumber
-    }
+    const unit =
+      numberSettings.unit.symbol === 'custom'
+        ? DOMPurify.sanitize(numberSettings.unit.custom_unit)
+        : DOMPurify.sanitize(numberSettings.unit.symbol)
 
-    if (numberSettings.unit.symbol === 'custom') {
-      numberSettings.unit.symbol = DOMPurify.sanitize(
-        numberSettings.unit.custom_unit,
-      )
-    }
-
-    if (numberSettings.unit.direction === 'left') {
-      return `${DOMPurify.sanitize(numberSettings.unit.symbol)}${formattedNumber}`
-    }
-
-    return `${formattedNumber}${DOMPurify.sanitize(numberSettings.unit.symbol)}`
-  }, [type, numberSettings, inputValue])
+    return numberSettings.unit.direction === 'left'
+      ? `${unit}${val}`
+      : `${val}${unit}`
+  }
 
   useEffect(() => {
     if (isEditing && inputRef.current) {
@@ -70,10 +60,25 @@ const CustomInput: React.FC<CustomInputProps> = ({
     }
   }, [isEditing])
 
+  useEffect(() => {
+    const formatted = formatDecimalNumber(value)
+    setInputValue(formatted)
+    setDisplayValue(
+      type === 'number' && numberSettings?.unit
+        ? getFormattedValueWithUnit(formatted)
+        : formatted,
+    )
+  }, [value, type, numberSettings])
+
   const handleSave = () => {
+    const formatted = formatDecimalNumber(inputValue)
     setIsEditing(false)
-    const formattedInput = formatDecimalNumber(inputValue)
-    onChange(DOMPurify.sanitize(formattedInput))
+    setDisplayValue(
+      type === 'number' && numberSettings?.unit
+        ? getFormattedValueWithUnit(formatted)
+        : formatted,
+    )
+    onChange(formatted)
   }
 
   const handleBlur = () => {
@@ -85,7 +90,13 @@ const CustomInput: React.FC<CustomInputProps> = ({
       handleSave()
     } else if (event.key === 'Escape') {
       setIsEditing(false)
-      setInputValue(DOMPurify.sanitize(value))
+      const formatted = formatDecimalNumber(value)
+      setInputValue(formatted)
+      setDisplayValue(
+        type === 'number' && numberSettings?.unit
+          ? getFormattedValueWithUnit(formatted)
+          : formatted,
+      )
     }
   }
 
@@ -97,14 +108,12 @@ const CustomInput: React.FC<CustomInputProps> = ({
   const handleClear = (e: React.MouseEvent) => {
     e.stopPropagation()
     onChange('')
+    setInputValue('')
+    setDisplayValue('')
     if (inputRef.current) {
       inputRef.current.focus()
     }
   }
-
-  useEffect(() => {
-    setInputValue(DOMPurify.sanitize(value))
-  }, [value])
 
   return (
     <div
@@ -126,12 +135,12 @@ const CustomInput: React.FC<CustomInputProps> = ({
         <div style={{ position: 'relative', width: '100%' }}>
           <span
             style={{
-              color: inputValue ? 'black' : 'gray',
+              color: displayValue ? 'black' : 'gray',
             }}
           >
-            {formattedValue || DOMPurify.sanitize(placeholder)}
+            {displayValue || DOMPurify.sanitize(placeholder)}
           </span>
-          {inputValue && isHovered && (
+          {displayValue && isHovered && (
             <button
               type="button"
               onClick={handleClear}
