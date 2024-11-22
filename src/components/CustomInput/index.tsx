@@ -31,16 +31,24 @@ const CustomInput: React.FC<CustomInputProps> = ({
   const [inputValue, setInputValue] = useState(DOMPurify.sanitize(value))
   const inputRef = useRef<HTMLInputElement>(null)
 
+  const formatDecimalNumber = (val: string) => {
+    if (type === 'number' && val.startsWith('.')) {
+      return `0${val}`
+    }
+    return val
+  }
+
   const formattedValue = useMemo(() => {
     const sanitizedValue = DOMPurify.sanitize(inputValue)
+    const formattedNumber = formatDecimalNumber(sanitizedValue)
 
     if (
       type !== 'number' ||
       !numberSettings ||
       !numberSettings.unit ||
-      !sanitizedValue
+      !formattedNumber
     ) {
-      return sanitizedValue
+      return formattedNumber
     }
 
     if (numberSettings.unit.symbol === 'custom') {
@@ -50,10 +58,10 @@ const CustomInput: React.FC<CustomInputProps> = ({
     }
 
     if (numberSettings.unit.direction === 'left') {
-      return `${DOMPurify.sanitize(numberSettings.unit.symbol)}${sanitizedValue}`
+      return `${DOMPurify.sanitize(numberSettings.unit.symbol)}${formattedNumber}`
     }
 
-    return `${sanitizedValue}${DOMPurify.sanitize(numberSettings.unit.symbol)}`
+    return `${formattedNumber}${DOMPurify.sanitize(numberSettings.unit.symbol)}`
   }, [type, numberSettings, inputValue])
 
   useEffect(() => {
@@ -64,7 +72,8 @@ const CustomInput: React.FC<CustomInputProps> = ({
 
   const handleSave = () => {
     setIsEditing(false)
-    onChange(DOMPurify.sanitize(inputValue))
+    const formattedInput = formatDecimalNumber(inputValue)
+    onChange(DOMPurify.sanitize(formattedInput))
   }
 
   const handleBlur = () => {
@@ -78,6 +87,11 @@ const CustomInput: React.FC<CustomInputProps> = ({
       setIsEditing(false)
       setInputValue(DOMPurify.sanitize(value))
     }
+  }
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const sanitizedValue = DOMPurify.sanitize(e.target.value)
+    setInputValue(sanitizedValue)
   }
 
   const handleClear = (e: React.MouseEvent) => {
@@ -104,7 +118,7 @@ const CustomInput: React.FC<CustomInputProps> = ({
           ref={inputRef}
           type={type}
           value={inputValue}
-          onChange={(e) => setInputValue(DOMPurify.sanitize(e.target.value))}
+          onChange={handleInputChange}
           onBlur={handleBlur}
           onKeyDown={handleKeyDown}
         />
