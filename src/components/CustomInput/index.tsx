@@ -1,5 +1,6 @@
 import './styles.css'
 
+import DOMPurify from 'dompurify'
 import { X } from 'lucide-react'
 import React, {
   InputHTMLAttributes,
@@ -27,28 +28,32 @@ const CustomInput: React.FC<CustomInputProps> = ({
 }) => {
   const [isEditing, setIsEditing] = useState(false)
   const [isHovered, setIsHovered] = useState(false)
-  const [inputValue, setInputValue] = useState(value)
+  const [inputValue, setInputValue] = useState(DOMPurify.sanitize(value))
   const inputRef = useRef<HTMLInputElement>(null)
 
   const formattedValue = useMemo(() => {
+    const sanitizedValue = DOMPurify.sanitize(inputValue)
+
     if (
       type !== 'number' ||
       !numberSettings ||
       !numberSettings.unit ||
-      !inputValue
+      !sanitizedValue
     ) {
-      return inputValue
+      return sanitizedValue
     }
 
     if (numberSettings.unit.symbol === 'custom') {
-      numberSettings.unit.symbol = numberSettings.unit.custom_unit
+      numberSettings.unit.symbol = DOMPurify.sanitize(
+        numberSettings.unit.custom_unit,
+      )
     }
 
     if (numberSettings.unit.direction === 'left') {
-      return `${numberSettings.unit.symbol}${inputValue}`
+      return `${DOMPurify.sanitize(numberSettings.unit.symbol)}${sanitizedValue}`
     }
 
-    return `${inputValue}${numberSettings.unit.symbol}`
+    return `${sanitizedValue}${DOMPurify.sanitize(numberSettings.unit.symbol)}`
   }, [type, numberSettings, inputValue])
 
   useEffect(() => {
@@ -59,7 +64,7 @@ const CustomInput: React.FC<CustomInputProps> = ({
 
   const handleSave = () => {
     setIsEditing(false)
-    onChange(inputValue)
+    onChange(DOMPurify.sanitize(inputValue))
   }
 
   const handleBlur = () => {
@@ -71,7 +76,7 @@ const CustomInput: React.FC<CustomInputProps> = ({
       handleSave()
     } else if (event.key === 'Escape') {
       setIsEditing(false)
-      setInputValue(value)
+      setInputValue(DOMPurify.sanitize(value))
     }
   }
 
@@ -84,7 +89,7 @@ const CustomInput: React.FC<CustomInputProps> = ({
   }
 
   useEffect(() => {
-    setInputValue(value)
+    setInputValue(DOMPurify.sanitize(value))
   }, [value])
 
   return (
@@ -99,7 +104,7 @@ const CustomInput: React.FC<CustomInputProps> = ({
           ref={inputRef}
           type={type}
           value={inputValue}
-          onChange={(e) => setInputValue(e.target.value)}
+          onChange={(e) => setInputValue(DOMPurify.sanitize(e.target.value))}
           onBlur={handleBlur}
           onKeyDown={handleKeyDown}
         />
@@ -110,7 +115,7 @@ const CustomInput: React.FC<CustomInputProps> = ({
               color: inputValue ? 'black' : 'gray',
             }}
           >
-            {formattedValue || placeholder}
+            {formattedValue || DOMPurify.sanitize(placeholder)}
           </span>
           {inputValue && isHovered && (
             <button
