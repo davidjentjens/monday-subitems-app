@@ -8,6 +8,7 @@ import { monday } from './services'
 // Type definitions
 interface ContextData {
   itemId: number
+  boardId: number
   data?: unknown
 }
 
@@ -28,6 +29,7 @@ const LoadingState: React.FC = () => (
 
 const App: React.FC = () => {
   const [parentItemId, setParentItemId] = useState<number | null>(null)
+  const [boardId, setBoardId] = useState<number | null>(null)
   const [isLoading, setIsLoading] = useState<boolean>(true)
   const [error, setError] = useState<string | null>(null)
 
@@ -38,6 +40,8 @@ const App: React.FC = () => {
       try {
         // Initialize with default ID if needed
         setParentItemId(7552836936)
+        // Initialize with board ID if needed
+        setBoardId(7553323451)
 
         const unsubscribe = monday.listen('context', (res: MondayContext) => {
           console.log('Context:', res)
@@ -45,9 +49,13 @@ const App: React.FC = () => {
           if (!isMounted) return
 
           const itemId = res.data?.itemId
+          const boardId = res.data?.boardId
 
           if (itemId) {
             setParentItemId(itemId)
+          }
+          if (boardId) {
+            setBoardId(boardId)
           }
         })
 
@@ -69,14 +77,10 @@ const App: React.FC = () => {
   }, [])
 
   if (error) {
-    return (
-      <ToastProvider>
-        <div className="p-4 text-red-600">Error: {error}</div>
-      </ToastProvider>
-    )
+    return <div className="p-4 text-red-600">Error: {error}</div>
   }
 
-  if (isLoading || !parentItemId) {
+  if (isLoading || !parentItemId || !boardId) {
     return (
       <ToastProvider>
         <LoadingState />
@@ -86,7 +90,7 @@ const App: React.FC = () => {
 
   return (
     <ToastProvider>
-      <SubitemsViewer parentItemId={parentItemId} />
+      <SubitemsViewer boardId={boardId} parentItemId={parentItemId} />
     </ToastProvider>
   )
 }

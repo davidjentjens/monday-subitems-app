@@ -10,11 +10,15 @@ import {
   shouldRefreshOnItemChange,
 } from './eventHandlers'
 
-const useSubitems = (parentItemId: number) => {
+interface UseSubitemsProps {
+  boardId: number
+  parentItemId: number
+}
+
+const useSubitems = ({ boardId, parentItemId }: UseSubitemsProps) => {
   const { addToast, removeToast } = useToast()
 
   const [state, setState] = useState({
-    boardId: null as number | null,
     subitems: [] as Subitem[],
     columns: [] as SubitemColumn[],
     loading: false,
@@ -32,7 +36,7 @@ const useSubitems = (parentItemId: number) => {
   const loadTable = useCallback(async () => {
     setLoading(true)
     try {
-      const [columns, { items, boardId }] = await Promise.all([
+      const [columns, { items }] = await Promise.all([
         subitemApi.fetchColumns(parentItemId),
         subitemApi.fetchSubitems(parentItemId),
       ])
@@ -40,7 +44,6 @@ const useSubitems = (parentItemId: number) => {
         ...prev,
         columns,
         subitems: items,
-        boardId,
       }))
     } catch (error) {
       console.error('Failed to load table:', error)
@@ -144,12 +147,7 @@ const useSubitems = (parentItemId: number) => {
         console.log('event', res)
 
         if (
-          shouldRefreshOnEvent(
-            res.data,
-            parentItemId,
-            state.boardId,
-            state.subitems,
-          )
+          shouldRefreshOnEvent(res.data, parentItemId, boardId, state.subitems)
         ) {
           loadTable()
         }
@@ -175,7 +173,7 @@ const useSubitems = (parentItemId: number) => {
       unsubscribeEvents()
       unsubscribeItemChanges()
     }
-  }, [state.boardId, loadTable, parentItemId, state.subitems])
+  }, [boardId, loadTable, parentItemId, state.subitems])
 
   useEffect(() => {
     loadTable()

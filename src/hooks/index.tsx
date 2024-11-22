@@ -3,6 +3,7 @@
 import { ReactNode } from 'react'
 
 import { StatusMapProvider } from './useStatusMap'
+import { ToastProvider } from './useToast'
 import { UserDataProvider } from './useUserData'
 
 interface AppProviderProps {
@@ -17,10 +18,12 @@ export const AppProvider = ({
   children,
 }: AppProviderProps) => {
   return (
-    <UserDataProvider boardId={boardId}>
-      <StatusMapProvider boardId={boardId} columnIds={columnIds}>
-        {children}
-      </StatusMapProvider>
-    </UserDataProvider>
+    <ToastProvider>
+      <UserDataProvider boardId={boardId}>
+        <StatusMapProvider boardId={boardId} columnIds={columnIds}>
+          {children}
+        </StatusMapProvider>
+      </UserDataProvider>
+    </ToastProvider>
   )
 }

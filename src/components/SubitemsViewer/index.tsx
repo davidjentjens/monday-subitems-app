@@ -23,12 +23,15 @@ import { TableEmptyState } from './components/TableEmptyState'
 import { TextCell } from './components/TextCell'
 
 interface SubitemsViewerProps {
+  boardId: number
   parentItemId: number
 }
 
-const SubitemsViewer: React.FC<SubitemsViewerProps> = ({ parentItemId }) => {
+const SubitemsViewer: React.FC<SubitemsViewerProps> = ({
+  boardId,
+  parentItemId,
+}) => {
   const {
-    boardId,
     subitems,
     columns,
     loading,
@@ -36,7 +39,7 @@ const SubitemsViewer: React.FC<SubitemsViewerProps> = ({ parentItemId }) => {
     deleteSubitem,
     newSubitemName,
     onNewSubitemNameChange,
-  } = useSubitems(parentItemId)
+  } = useSubitems({ parentItemId, boardId })
 
   const [validationError, setValidationError] = useState(false)
 
@@ -131,7 +134,7 @@ const SubitemsViewer: React.FC<SubitemsViewerProps> = ({ parentItemId }) => {
           return 'Unsupported column type'
       }
     },
-    [boardId, deleteSubitem],
+    [boardId, columns, deleteSubitem],
   )
 
   const clickAddSubitem = () => {
