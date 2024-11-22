@@ -11,7 +11,7 @@ import {
   TextField,
 } from 'monday-ui-react-core'
 import React, { useCallback, useMemo, useState } from 'react'
-import { AppProvider } from 'src/hooks'
+import { SubitemsProvider } from 'src/hooks'
 import useSubitems from 'src/hooks/useSubitems'
 import { Subitem, SubitemColumn, UserData } from 'src/interfaces'
 
@@ -147,7 +147,7 @@ const SubitemsViewer: React.FC<SubitemsViewerProps> = ({
   }
 
   return (
-    <AppProvider boardId={boardId!} columnIds={statusColumnIds}>
+    <SubitemsProvider boardId={boardId!} columnIds={statusColumnIds}>
       <Table
         dataState={{
           isLoading: loading,
@@ -204,7 +204,7 @@ const SubitemsViewer: React.FC<SubitemsViewerProps> = ({
           + Add Subitem
         </Button>
       </div>
-    </AppProvider>
+    </SubitemsProvider>
   )
 }
 

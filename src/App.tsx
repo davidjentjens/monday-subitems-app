@@ -1,15 +1,16 @@
-import { Table } from 'monday-ui-react-core'
+import { Table, Text } from 'monday-ui-react-core'
 import React, { useEffect, useState } from 'react'
 
 import SubitemsViewer from './components/SubitemsViewer'
-import { ToastProvider } from './hooks/useToast'
 import { monday } from './services'
 
 // Type definitions
 interface ContextData {
   itemId: number
   boardId: number
-  data?: unknown
+  user: {
+    isViewOnly: boolean
+  }
 }
 
 interface MondayContext {
@@ -30,6 +31,9 @@ const LoadingState: React.FC = () => (
 const App: React.FC = () => {
   const [parentItemId, setParentItemId] = useState<number | null>(null)
   const [boardId, setBoardId] = useState<number | null>(null)
+
+  const [isViewMode, setIsViewMode] = useState<boolean>(false)
+
   const [isLoading, setIsLoading] = useState<boolean>(true)
   const [error, setError] = useState<string | null>(null)
 
@@ -50,12 +54,16 @@ const App: React.FC = () => {
 
           const itemId = res.data?.itemId
           const boardId = res.data?.boardId
+          const isViewMode = res.data?.user.isViewOnly
 
           if (itemId) {
             setParentItemId(itemId)
           }
           if (boardId) {
             setBoardId(boardId)
+          }
+          if (isViewMode) {
+            setIsViewMode(isViewMode)
           }
         })
 
@@ -76,23 +84,45 @@ const App: React.FC = () => {
     initializeApp()
   }, [])
 
-  if (error) {
-    return <div className="p-4 text-red-600">Error: {error}</div>
-  }
-
-  if (isLoading || !parentItemId || !boardId) {
+  if (isViewMode) {
     return (
-      <ToastProvider>
-        <LoadingState />
-      </ToastProvider>
+      <div
+        style={{
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          height: '100%',
+          minHeight: '20vh',
+        }}
+      >
+        <Text align={Text.align.CENTER}>
+          As a viewer, you are unable to use the app Better Subitems
+        </Text>
+      </div>
     )
   }
 
-  return (
-    <ToastProvider>
-      <SubitemsViewer boardId={boardId} parentItemId={parentItemId} />
-    </ToastProvider>
-  )
+  if (error) {
+    return (
+      <div
+        style={{
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          height: '100%',
+          minHeight: '20vh',
+        }}
+      >
+        <Text align={Text.align.CENTER}>Unexpected Error: {error}</Text>{' '}
+      </div>
+    )
+  }
+
+  if (isLoading || !parentItemId || !boardId) {
+    return <LoadingState />
+  }
+
+  return <SubitemsViewer boardId={boardId} parentItemId={parentItemId} />
 }
 
 export default App

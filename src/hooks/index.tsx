@@ -3,27 +3,24 @@
 import { ReactNode } from 'react'
 
 import { StatusMapProvider } from './useStatusMap'
-import { ToastProvider } from './useToast'
 import { UserDataProvider } from './useUserData'
 
-interface AppProviderProps {
+interface SubitemsProviderProps {
   boardId: number
   columnIds: string[]
   children: ReactNode
 }
 
-export const AppProvider = ({
+export const SubitemsProvider = ({
   boardId,
   columnIds,
   children,
-}: AppProviderProps) => {
+}: SubitemsProviderProps) => {
   return (
-    <ToastProvider>
-      <UserDataProvider boardId={boardId}>
-        <StatusMapProvider boardId={boardId} columnIds={columnIds}>
-          {children}
-        </StatusMapProvider>
-      </UserDataProvider>
-    </ToastProvider>
+    <UserDataProvider boardId={boardId}>
+      <StatusMapProvider boardId={boardId} columnIds={columnIds}>
+        {children}
+      </StatusMapProvider>
+    </UserDataProvider>
   )
 }
