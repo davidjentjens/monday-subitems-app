@@ -10,7 +10,7 @@
     "lint": "eslint --fix",
     "preview": "vite preview",
     "start": "serve -s dist -l 8080",
-    "deploy": "tsc -b && vite build && mapps code:push -i 10439868 --verbose"
+    "deploy": "tsc -b && vite build && mapps code:push -i 10447811 --verbose"
   },
   "dependencies": {
     "dompurify": "^3.2.1",
@@ -21,6 +21,8 @@
     "monday-ui-react-core": "^2.131.2",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
+    "react-virtualized-auto-sizer": "^1.0.24",
+    "react-window": "^1.8.10",
     "serve": "^14.2.3"
   },
   "devDependencies": {
@@ -30,6 +32,7 @@
     "@types/node": "^22.5.1",
     "@types/react": "^18.3.3",
     "@types/react-dom": "^18.3.0",
+    "@types/react-window": "^1.8.8",
     "@typescript-eslint/eslint-plugin": "^8.4.0",
     "@typescript-eslint/parser": "^8.4.0",
     "@vitejs/plugin-react": "^4.3.1",

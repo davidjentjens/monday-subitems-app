@@ -1,97 +1,25 @@
 import './styles.css'
 
 import {
-  Button,
   Table,
   TableBody,
-  TableCell,
   TableHeader,
   TableHeaderCell,
-  TableRow,
-  TextField,
 } from 'monday-ui-react-core'
-import React, { useCallback, useMemo, useState } from 'react'
+import React, { useCallback, useMemo } from 'react'
+import AutoSizer from 'react-virtualized-auto-sizer'
 import { SubitemsProvider } from 'src/hooks'
 import useSubitems from 'src/hooks/useSubitems'
 import { Subitem, SubitemColumn, UserData } from 'src/interfaces'
 
-import { DeleteCell } from './components/DeleteCell'
-import { NumbersCell } from './components/NumbersCell'
-import { PeopleCell } from './components/PeopleCell'
-import { StatusCell } from './components/StatusCell'
+import { DeleteCell } from './components/CustomCells/DeleteCell'
+import { NumbersCell } from './components/CustomCells/NumbersCell'
+import { PeopleCell } from './components/CustomCells/PeopleCell'
+import { StatusCell } from './components/CustomCells/StatusCell'
+import { TextCell } from './components/CustomCells/TextCell'
+import { SubitemInput } from './components/SubitemInput'
 import { TableEmptyState } from './components/TableEmptyState'
-import { TextCell } from './components/TextCell'
-
-interface SubitemInputProps {
-  onAdd: (_name: string) => void
-}
-
-const SubitemInput = React.memo(({ onAdd }: SubitemInputProps) => {
-  const [newSubitemName, setNewSubitemName] = useState('')
-  const [validationError, setValidationError] = useState(false)
-
-  const subItemNameValidation = useMemo(() => {
-    const isValid = newSubitemName.length > 0
-    if (!validationError || isValid) {
-      return { status: 'success' as any, text: '' }
-    }
-    return { status: 'error', text: 'Name cannot be empty' }
-  }, [newSubitemName.length, validationError])
-
-  const handleAdd = () => {
-    if (newSubitemName.length === 0) {
-      setValidationError(true)
-      return
-    }
-    setValidationError(false)
-    onAdd(newSubitemName)
-    setNewSubitemName('')
-  }
-
-  return (
-    <div style={{ display: 'flex', gap: 8, marginTop: 8, width: '100%' }}>
-      <TextField
-        value={newSubitemName}
-        onChange={setNewSubitemName}
-        placeholder="New subitem name"
-        onKeyDown={(e) => e.key === 'Enter' && handleAdd()}
-        size={TextField.sizes.LARGE}
-        validation={subItemNameValidation}
-      />
-      <Button
-        onClick={handleAdd}
-        size={Button.sizes.LARGE}
-        kind={Button.kinds.PRIMARY}
-      >
-        + Add Subitem
-      </Button>
-    </div>
-  )
-})
-SubitemInput.displayName = 'SubitemInput'
-
-interface SubitemRowProps {
-  subitem: Subitem
-  columns: SubitemColumn[]
-  boardId: number
-  renderTableCell: (
-    _column: SubitemColumn,
-    _subitem: Subitem,
-  ) => React.ReactNode
-}
-
-const SubitemRow = React.memo(
-  ({ subitem, columns, renderTableCell }: SubitemRowProps) => (
-    <TableRow>
-      {columns.map((column) => (
-        <TableCell key={column.id}>
-          {renderTableCell(column, subitem)}
-        </TableCell>
-      ))}
-    </TableRow>
-  ),
-)
-SubitemRow.displayName = 'SubitemRow'
+import { CustomTableBody } from './components/Virtualized'
 
 interface SubitemsViewerProps {
   boardId: number
@@ -191,43 +119,48 @@ const SubitemsViewer: React.FC<SubitemsViewerProps> = ({
     [addSubitem],
   )
 
-  const tableHeader = useMemo(
-    () =>
-      columns.length > 0 ? (
-        <TableHeader className="table-header">
-          {columns.map((column) => (
-            <TableHeaderCell key={column.id} title={column.title} />
-          ))}
-        </TableHeader>
-      ) : null,
-    [columns],
-  )
-
   return (
     <SubitemsProvider boardId={boardId!} columnIds={statusColumnIds}>
-      <Table
-        dataState={{
-          isLoading: loading,
-          isError: false,
-        }}
-        columns={columns}
-        emptyState={<TableEmptyState loading={loading} />}
-        errorState={<div style={{ padding: 16 }}>Failed to load subitems</div>}
-        style={{ minWidth: '800px !important', overflowX: 'auto' }}
-      >
-        {tableHeader!}
-        <TableBody>
-          {subitems.map((subitem) => (
-            <SubitemRow
-              key={subitem.id}
-              subitem={subitem}
-              columns={columns}
-              boardId={boardId}
-              renderTableCell={renderTableCell}
-            />
-          ))}
-        </TableBody>
-      </Table>
+      <div style={{ height: 'calc(100vh - 200px)', minHeight: '400px' }}>
+        {loading ? (
+          <TableEmptyState loading={loading} />
+        ) : (
+          <Table
+            dataState={{
+              isLoading: loading,
+              isError: false,
+            }}
+            columns={columns}
+            emptyState={<TableEmptyState loading={loading} />}
+            errorState={
+              <div style={{ padding: 16 }}>Failed to load subitems</div>
+            }
+            style={{
+              scrollbarWidth: 'none',
+            }}
+          >
+            <TableHeader className="monday-style-table-header">
+              {columns.map((column) => (
+                <TableHeaderCell key={column.id} title={column.title} />
+              ))}
+            </TableHeader>
+            <TableBody className="monday-style-table-body">
+              <AutoSizer>
+                {({ height, width }) => (
+                  <CustomTableBody
+                    height={height}
+                    width={width}
+                    subitems={subitems}
+                    columns={columns}
+                    boardId={boardId}
+                    renderTableCell={renderTableCell}
+                  />
+                )}
+              </AutoSizer>
+            </TableBody>
+          </Table>
+        )}
+      </div>
       <SubitemInput onAdd={handleAddSubitem} />
     </SubitemsProvider>
   )
