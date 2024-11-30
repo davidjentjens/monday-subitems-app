@@ -6,7 +6,7 @@ import { monday } from 'src/services'
 const fetchAllUserDataForBoard = async (
   boardId: number,
 ): Promise<UserData[]> => {
-  let query = `
+  const query = `
     query {
       boards(ids: ${boardId}) {
         board_kind
@@ -28,43 +28,7 @@ const fetchAllUserDataForBoard = async (
 
   const board = response.data.boards[0]
 
-  if (board.board_kind !== 'public') {
-    return board.subscribers.map(
-      (user: any): UserData => ({
-        id: user.id,
-        name: user.name,
-        createdAt: user.created_at,
-        email: user.email,
-        photoSmall: user.photo_small,
-        account: {
-          name: user.account.name,
-          id: user.account.id,
-        },
-      }),
-    )
-  }
-
-  query = `
-    query {
-      users {
-        id
-        name
-        created_at
-        email
-        photo_small
-        account {
-          name
-          id
-        }
-      }
-    }
-  `
-
-  const allUsersResponse = await monday.api(query)
-
-  const allUsers = allUsersResponse.data.users
-
-  return allUsers.map(
+  return board.subscribers.map(
     (user: any): UserData => ({
       id: user.id,
       name: user.name,
@@ -103,7 +67,7 @@ export const useUserDataContext = (): UserDataContextProps => {
  */
 export const UserDataProvider: React.FC<{
   children: React.ReactNode
-  boardId: number
+  boardId: number | null
 }> = ({ children, boardId }) => {
   const [boardUserData, setBoardUserData] = useState<UserData[]>([])
 
@@ -111,6 +75,11 @@ export const UserDataProvider: React.FC<{
 
   useEffect(() => {
     const fetchData = async () => {
+      if (!boardId) {
+        setLoading(false)
+        return
+      }
+
       const boardData = await fetchAllUserDataForBoard(boardId)
       setBoardUserData(boardData)
       setLoading(false)

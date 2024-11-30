@@ -6,7 +6,7 @@ import { StatusMapProvider } from './useStatusMap'
 import { UserDataProvider } from './useUserData'
 
 interface SubitemsProviderProps {
-  boardId: number
+  boardId: number | null
   columnIds: string[]
   children: ReactNode
 }

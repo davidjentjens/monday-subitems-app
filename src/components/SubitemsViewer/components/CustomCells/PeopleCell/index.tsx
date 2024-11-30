@@ -59,13 +59,22 @@ export const PeopleCell: React.FC<CellProps> = ({
     }
     setSelectedUserIds(updatedUserIds)
 
-    await monday.api(`
+    const query = `
       mutation {
-        change_column_value(board_id: ${boardId}, item_id: ${subItemId}, column_id: "${columnId}", value: "{\\"personsAndTeams\\":[${updatedUserIds.map((id) => `{\\"id\\":${id},\\"kind\\":\\"person\\"}`).join(',')}]}") {
+        change_simple_column_value(
+          board_id: ${boardId},
+          item_id: ${subItemId},
+          column_id: "${columnId}",
+          value: "${updatedUserIds.join(',')}"
+        ) {
           id
         }
       }
-    `)
+    `
+
+    console.log(query)
+
+    await monday.api(query)
 
     await monday.execute('valueCreatedForUser')
   }

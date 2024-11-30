@@ -7,11 +7,11 @@ import { useToast } from '../useToast'
 import { subitemApi } from './api'
 
 interface UseSubitemsProps {
-  boardId: number
   parentItemId: number
 }
 
 interface SubitemsState {
+  boardId: number | null
   subitems: Subitem[]
   columns: SubitemColumn[]
   loading: boolean
@@ -54,10 +54,11 @@ const shouldRefreshOnItemChange = (
   )
 }
 
-const useSubitems = ({ boardId, parentItemId }: UseSubitemsProps) => {
+const useSubitems = ({ parentItemId }: UseSubitemsProps) => {
   const { addToast, removeToast } = useToast()
   const subitemIdsRef = useRef<Set<string>>(new Set())
   const [state, setState] = useState<SubitemsState>({
+    boardId: null as number | null,
     subitems: [],
     columns: [],
     loading: false,
@@ -70,7 +71,7 @@ const useSubitems = ({ boardId, parentItemId }: UseSubitemsProps) => {
   const loadTable = useCallback(async () => {
     setLoading(true)
     try {
-      const [columns, { items }] = await Promise.all([
+      const [columns, { items, boardId }] = await Promise.all([
         subitemApi.fetchColumns(parentItemId),
         subitemApi.fetchSubitems(parentItemId),
       ])
@@ -80,6 +81,7 @@ const useSubitems = ({ boardId, parentItemId }: UseSubitemsProps) => {
         columns,
         subitems: items,
         loading: false,
+        boardId,
       }))
     } catch (error) {
       console.error('Failed to load table:', error)
@@ -202,7 +204,7 @@ const useSubitems = ({ boardId, parentItemId }: UseSubitemsProps) => {
           shouldRefreshOnEvent(
             res.data,
             parentItemId,
-            boardId,
+            state.boardId || 0,
             subitemIdsRef.current,
           )
         ) {
@@ -230,7 +232,7 @@ const useSubitems = ({ boardId, parentItemId }: UseSubitemsProps) => {
       unsubscribeEvents()
       unsubscribeItemChanges()
     }
-  }, [boardId, loadTable, parentItemId])
+  }, [loadTable, parentItemId, state.boardId, state.subitems])
 
   // Initial load
   useEffect(() => {
@@ -238,6 +240,7 @@ const useSubitems = ({ boardId, parentItemId }: UseSubitemsProps) => {
   }, [loadTable])
 
   return {
+    boardId: state.boardId,
     subitems: state.subitems,
     columns: state.columns,
     loading: state.loading,

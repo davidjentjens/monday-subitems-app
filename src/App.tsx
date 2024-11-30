@@ -7,7 +7,6 @@ import { monday } from './services'
 // Type definitions
 interface ContextData {
   itemId: number
-  boardId: number
   user: {
     isViewOnly: boolean
   }
@@ -30,7 +29,6 @@ const LoadingState: React.FC = () => (
 
 const App: React.FC = () => {
   const [parentItemId, setParentItemId] = useState<number | null>(null)
-  const [boardId, setBoardId] = useState<number | null>(null)
 
   const [isViewMode, setIsViewMode] = useState<boolean>(false)
 
@@ -42,25 +40,16 @@ const App: React.FC = () => {
 
     const initializeApp = async () => {
       try {
-        // Initialize with default ID if needed
-        setParentItemId(7552836936)
-        // Initialize with board ID if needed
-        setBoardId(7553323451)
-
         const unsubscribe = monday.listen('context', (res: MondayContext) => {
           console.log('Context:', res)
 
           if (!isMounted) return
 
           const itemId = res.data?.itemId
-          const boardId = res.data?.boardId
           const isViewMode = res.data?.user.isViewOnly
 
           if (itemId) {
             setParentItemId(itemId)
-          }
-          if (boardId) {
-            setBoardId(boardId)
           }
           if (isViewMode) {
             setIsViewMode(isViewMode)
@@ -118,11 +107,11 @@ const App: React.FC = () => {
     )
   }
 
-  if (isLoading || !parentItemId || !boardId) {
+  if (isLoading || !parentItemId) {
     return <LoadingState />
   }
 
-  return <SubitemsViewer boardId={boardId} parentItemId={parentItemId} />
+  return <SubitemsViewer parentItemId={parentItemId} />
 }
 
 export default App
