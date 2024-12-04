@@ -6,7 +6,7 @@ import {
   TableHeader,
   TableHeaderCell,
 } from 'monday-ui-react-core'
-import React from 'react'
+import React, { useCallback } from 'react'
 import AutoSizer from 'react-virtualized-auto-sizer'
 import { SubitemsProvider } from 'src/hooks'
 import useSubitems from 'src/hooks/useSubitems'
@@ -106,46 +106,54 @@ const SubitemsViewer: React.FC<{ parentItemId: number }> = ({
     [boardId, columns, deleteSubitem],
   )
 
-  if (loading || !boardId) {
+  const getTable = useCallback(() => {
+    if (loading) {
+      return (
+        <div style={{ height: 'calc(100vh - 200px)', minHeight: '400px' }}>
+          <TableEmptyState state="loading" />
+        </div>
+      )
+    }
+
+    if (!boardId) {
+      return <TableEmptyState state="empty" itemId={parentItemId} />
+    }
+
     return (
-      <div style={{ height: 'calc(100vh - 200px)', minHeight: '400px' }}>
-        <TableEmptyState loading={loading} />
-      </div>
+      <Table
+        dataState={{ isLoading: loading, isError: false }}
+        columns={columns}
+        emptyState={<TableEmptyState state="empty" />}
+        errorState={<div style={{ padding: 16 }}>Failed to load subitems</div>}
+        style={{ scrollbarWidth: 'none' }}
+      >
+        <TableHeader className="monday-style-table-header">
+          {columns.map((column) => (
+            <TableHeaderCell key={column.id} title={column.title} />
+          ))}
+        </TableHeader>
+        <TableBody className="monday-style-table-body">
+          <AutoSizer>
+            {({ height, width }) => (
+              <CustomTableBody
+                height={height}
+                width={width}
+                subitems={subitems}
+                columns={columns}
+                boardId={boardId}
+                renderTableCell={renderTableCell}
+              />
+            )}
+          </AutoSizer>
+        </TableBody>
+      </Table>
     )
-  }
+  }, [boardId, columns, loading, parentItemId, renderTableCell, subitems])
 
   return (
     <SubitemsProvider boardId={boardId} columnIds={statusColumnIds}>
       <div style={{ height: 'calc(100vh - 200px)', minHeight: '400px' }}>
-        <Table
-          dataState={{ isLoading: loading, isError: false }}
-          columns={columns}
-          emptyState={<TableEmptyState loading={loading} />}
-          errorState={
-            <div style={{ padding: 16 }}>Failed to load subitems</div>
-          }
-          style={{ scrollbarWidth: 'none' }}
-        >
-          <TableHeader className="monday-style-table-header">
-            {columns.map((column) => (
-              <TableHeaderCell key={column.id} title={column.title} />
-            ))}
-          </TableHeader>
-          <TableBody className="monday-style-table-body">
-            <AutoSizer>
-              {({ height, width }) => (
-                <CustomTableBody
-                  height={height}
-                  width={width}
-                  subitems={subitems}
-                  columns={columns}
-                  boardId={boardId}
-                  renderTableCell={renderTableCell}
-                />
-              )}
-            </AutoSizer>
-          </TableBody>
-        </Table>
+        {getTable()}
       </div>
       <SubitemInput onAdd={addSubitem} />
       {subitems.length > 0 && <UpdateNotice />}
