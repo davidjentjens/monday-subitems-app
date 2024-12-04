@@ -1,12 +1,15 @@
-import { Table, Text } from 'monday-ui-react-core'
+import { AlertTriangle } from 'lucide-react'
+import { Table, Text, ThemeProvider } from 'monday-ui-react-core'
 import React, { useEffect, useState } from 'react'
 
 import SubitemsViewer from './components/SubitemsViewer'
+import { ThemeConfig } from './interfaces'
 import { monday } from './services'
 
 // Type definitions
 interface ContextData {
   itemId: number
+  themeConfig: ThemeConfig
   user: {
     isViewOnly: boolean
   }
@@ -30,10 +33,38 @@ const LoadingState: React.FC = () => (
 const App: React.FC = () => {
   const [parentItemId, setParentItemId] = useState<number | null>(null)
 
-  const [isViewMode, setIsViewMode] = useState<boolean>(false)
-
   const [isLoading, setIsLoading] = useState<boolean>(true)
   const [error, setError] = useState<string | null>(null)
+
+  const [context, setContext] = useState<ContextData | null>({
+    itemId: 0,
+    themeConfig: {
+      name: 'Default',
+      colors: {
+        black: {
+          'primary-color': '#000000',
+          'primary-hover-color': '#000000',
+          'primary-selected-color': '#000000',
+          'primary-selected-hover-color': '#000000',
+        },
+        dark: {
+          'primary-color': '#000000',
+          'primary-hover-color': '#000000',
+          'primary-selected-color': '#000000',
+          'primary-selected-hover-color': '#000000',
+        },
+        light: {
+          'primary-color': '#000000',
+          'primary-hover-color': '#000000',
+          'primary-selected-color': '#000000',
+          'primary-selected-hover-color': '#000000',
+        },
+      },
+    },
+    user: {
+      isViewOnly: false,
+    },
+  })
 
   useEffect(() => {
     let isMounted = true
@@ -46,14 +77,11 @@ const App: React.FC = () => {
           if (!isMounted) return
 
           const itemId = res.data?.itemId
-          const isViewMode = res.data?.user.isViewOnly
-
           if (itemId) {
             setParentItemId(itemId)
           }
-          if (isViewMode) {
-            setIsViewMode(isViewMode)
-          }
+
+          setContext(res.data)
         })
 
         setIsLoading(false)
@@ -73,7 +101,7 @@ const App: React.FC = () => {
     initializeApp()
   }, [])
 
-  if (isViewMode) {
+  if (context?.user.isViewOnly) {
     return (
       <div
         style={{
@@ -107,11 +135,36 @@ const App: React.FC = () => {
     )
   }
 
-  if (isLoading || !parentItemId) {
-    return <LoadingState />
+  if (!context) {
+    return (
+      <div
+        style={{
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          height: '100%',
+          minHeight: '20vh',
+          gap: '10px',
+        }}
+      >
+        <AlertTriangle />
+        <Text align={Text.align.CENTER}>
+          No context data available. Please try again later. If the issue
+          persists, contact support.
+        </Text>
+      </div>
+    )
   }
 
-  return <SubitemsViewer parentItemId={parentItemId} />
+  return (
+    <ThemeProvider themeConfig={context?.themeConfig}>
+      {isLoading || !parentItemId ? (
+        <LoadingState />
+      ) : (
+        <SubitemsViewer parentItemId={parentItemId} />
+      )}
+    </ThemeProvider>
+  )
 }
 
 export default App
