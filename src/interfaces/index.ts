@@ -21,6 +21,7 @@ export interface SubitemsTableProps {
 }
 
 export interface CellProps {
+  isNameColumn?: boolean
   boardId: number | null
   selectedValue: any
   subItemId: string

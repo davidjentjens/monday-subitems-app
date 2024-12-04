@@ -44,6 +44,7 @@ const SubitemsViewer: React.FC<{ parentItemId: number }> = ({
         case 'name':
           return (
             <TextCell
+              isNameColumn={true}
               boardId={boardId}
               subItemId={subitem.id}
               columnId={column.id}

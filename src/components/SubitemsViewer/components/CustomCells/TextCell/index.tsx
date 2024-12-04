@@ -1,10 +1,13 @@
 import { debounce } from 'lodash'
+import { ExpandIcon } from 'lucide-react'
+import { IconButton } from 'monday-ui-react-core'
 import { useCallback, useState } from 'react'
 import CustomInput from 'src/components/CustomInput'
 import { CellProps } from 'src/interfaces'
 import { monday } from 'src/services'
 
 export const TextCell: React.FC<CellProps> = ({
+  isNameColumn,
   boardId,
   selectedValue,
   subItemId,
@@ -36,5 +39,24 @@ export const TextCell: React.FC<CellProps> = ({
     debouncedUpdate(value)
   }
 
-  return <CustomInput value={text} onChange={handleChange} />
+  const navigateToSubitem = () => {
+    // Open subitem by navigating to its URL
+    window.location.href = '/boards/' + boardId + '/pulses/' + subItemId
+  }
+
+  return (
+    <>
+      <CustomInput value={text} onChange={handleChange} />
+      {isNameColumn && (
+        <>
+          <div style={{ width: 2 }} />
+          <IconButton
+            icon={ExpandIcon}
+            tooltipContent="Open subitem"
+            onClick={navigateToSubitem}
+          />
+        </>
+      )}
+    </>
+  )
 }
