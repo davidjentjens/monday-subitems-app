@@ -14,7 +14,7 @@ export const UpdateNotice: React.FC = () => (
       compact
       withIconWithoutHeader
       icon={AlertTriangle}
-      text="If items are updated on Monday.com, please refresh this page to see the
+      text="If items are updated on monday.com, please refresh this page to see the
       changes"
       type={AttentionBox.types.WARNING}
     />
