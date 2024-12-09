@@ -10,7 +10,7 @@
     "lint": "eslint --fix",
     "preview": "vite preview",
     "start": "serve -s dist -l 8080",
-    "deploy": "tsc -b && vite build && mapps code:push -i 10459223 --verbose"
+    "deploy": "tsc -b && vite build && mapps code:push -i 10470177 --verbose"
   },
   "dependencies": {
     "dompurify": "^3.2.1",

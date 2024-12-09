@@ -40,8 +40,14 @@ export const TextCell: React.FC<CellProps> = ({
   }
 
   const navigateToSubitem = () => {
-    // Open subitem by navigating to its URL
-    window.location.href = '/boards/' + boardId + '/pulses/' + subItemId
+    // Replace the id after /pulses/ with the subitem id
+    // Don't remove whatever is before the /pulses/ part
+    const subItemUrl = `${window.location.href.replace(
+      /\/pulses\/\d+/,
+      `/pulses/${subItemId}`,
+    )}`
+
+    window.open(subItemUrl)
   }
 
   return (
