@@ -74,24 +74,3 @@ export interface MondayEvent {
   parentItemId?: number
   boardId?: number
 }
-
-interface ColorConfig {
-  'primary-color': string
-  'primary-hover-color': string
-  'primary-selected-color': string
-  'primary-selected-hover-color': string
-  'primary-selected-on-secondary-color'?: string
-  'surfce-color'?: string
-  [key: string]: string | undefined // Allow for additional color properties
-}
-
-interface ThemeColors {
-  black: ColorConfig
-  dark: ColorConfig
-  light: ColorConfig
-}
-
-export interface ThemeConfig {
-  colors: ThemeColors
-  name: string
-}

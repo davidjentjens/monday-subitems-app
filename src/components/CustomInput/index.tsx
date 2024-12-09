@@ -3,6 +3,7 @@ import './styles.css'
 import DOMPurify from 'dompurify'
 import { X } from 'lucide-react'
 import React, { InputHTMLAttributes, useEffect, useRef, useState } from 'react'
+import { useCustomTheme } from 'src/hooks/useTheme'
 import { NumberSettings } from 'src/interfaces'
 
 interface CustomInputProps {
@@ -20,6 +21,8 @@ const CustomInput: React.FC<CustomInputProps> = ({
   placeholder = 'Click to edit',
   numberSettings,
 }) => {
+  const { theme } = useCustomTheme()
+
   const [isEditing, setIsEditing] = useState(false)
   const [isHovered, setIsHovered] = useState(false)
   const [displayValue, setDisplayValue] = useState('')
@@ -68,6 +71,7 @@ const CustomInput: React.FC<CustomInputProps> = ({
         ? getFormattedValueWithUnit(formatted)
         : formatted,
     )
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [value, type, numberSettings])
 
   const handleSave = () => {
@@ -117,7 +121,8 @@ const CustomInput: React.FC<CustomInputProps> = ({
 
   return (
     <div
-      className={`customInput ${isHovered && !isEditing ? 'hoveredEditBox' : ''}`}
+      data-theme={theme}
+      className={`customInput ${isHovered && !isEditing ? 'hoveredEditBox' : ''} ${isEditing ? 'editing' : ''}`}
       onClick={() => setIsEditing(true)}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
@@ -133,13 +138,7 @@ const CustomInput: React.FC<CustomInputProps> = ({
         />
       ) : (
         <div style={{ position: 'relative', width: '100%' }}>
-          <span
-            style={{
-              color: displayValue ? 'black' : 'gray',
-            }}
-          >
-            {displayValue || DOMPurify.sanitize(placeholder)}
-          </span>
+          <span>{displayValue || DOMPurify.sanitize(placeholder)}</span>
           {displayValue && isHovered && (
             <button
               type="button"

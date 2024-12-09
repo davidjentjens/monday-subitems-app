@@ -3,13 +3,13 @@ import { Table, Text, ThemeProvider } from 'monday-ui-react-core'
 import React, { useEffect, useState } from 'react'
 
 import SubitemsViewer from './components/SubitemsViewer'
-import { ThemeConfig } from './interfaces'
+import { CustomThemeProvider } from './hooks/useTheme'
 import { monday } from './services'
 
 // Type definitions
 interface ContextData {
   itemId: number
-  themeConfig: ThemeConfig
+  theme?: any
   user: {
     isViewOnly: boolean
   }
@@ -38,29 +38,7 @@ const App: React.FC = () => {
 
   const [context, setContext] = useState<ContextData | null>({
     itemId: 0,
-    themeConfig: {
-      name: 'Default',
-      colors: {
-        black: {
-          'primary-color': '#000000',
-          'primary-hover-color': '#000000',
-          'primary-selected-color': '#000000',
-          'primary-selected-hover-color': '#000000',
-        },
-        dark: {
-          'primary-color': '#000000',
-          'primary-hover-color': '#000000',
-          'primary-selected-color': '#000000',
-          'primary-selected-hover-color': '#000000',
-        },
-        light: {
-          'primary-color': '#000000',
-          'primary-hover-color': '#000000',
-          'primary-selected-color': '#000000',
-          'primary-selected-hover-color': '#000000',
-        },
-      },
-    },
+    theme: 'dark',
     user: {
       isViewOnly: false,
     },
@@ -71,6 +49,9 @@ const App: React.FC = () => {
 
     const initializeApp = async () => {
       try {
+        // Initialize with default ID if needed
+        setParentItemId(7900872202)
+
         const unsubscribe = monday.listen('context', (res: MondayContext) => {
           console.log('Context:', res)
 
@@ -157,12 +138,14 @@ const App: React.FC = () => {
   }
 
   return (
-    <ThemeProvider themeConfig={context?.themeConfig}>
-      {isLoading || !parentItemId ? (
-        <LoadingState />
-      ) : (
-        <SubitemsViewer parentItemId={parentItemId} />
-      )}
+    <ThemeProvider systemTheme={context.theme}>
+      <CustomThemeProvider defaultTheme={context.theme}>
+        {isLoading || !parentItemId ? (
+          <LoadingState />
+        ) : (
+          <SubitemsViewer parentItemId={parentItemId} />
+        )}
+      </CustomThemeProvider>
     </ThemeProvider>
   )
 }
