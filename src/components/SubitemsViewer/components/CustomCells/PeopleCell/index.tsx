@@ -72,10 +72,7 @@ export const PeopleCell: React.FC<CellProps> = ({
       }
     `
 
-    console.log(query)
-
     await monday.api(query)
-
     await monday.execute('valueCreatedForUser')
   }
 
@@ -176,6 +173,7 @@ export const PeopleCell: React.FC<CellProps> = ({
               key={user.id}
               type={user.photoSmall ? Avatar.types.IMG : Avatar.types.TEXT}
               src={user.photoSmall}
+              withoutTooltip
               backgroundColor={Avatar.colors.LIPSTICK}
               tooltipProps={{
                 content: user.name,

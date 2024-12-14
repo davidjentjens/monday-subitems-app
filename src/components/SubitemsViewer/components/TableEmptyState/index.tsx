@@ -1,4 +1,5 @@
 import { Flex, Heading, Loader, Text } from 'monday-ui-react-core'
+import { useCustomTheme } from 'src/hooks/useTheme'
 
 interface TableEmptyStateProps {
   state: 'loading' | 'empty' | 'error'
@@ -8,8 +9,11 @@ interface TableEmptyStateProps {
 export const TableEmptyState: React.FC<TableEmptyStateProps> = ({
   state,
   itemId,
-}) =>
-  state === 'loading' ? (
+}) => {
+  const { theme } = useCustomTheme()
+  const isDarkTheme = theme === 'dark' || theme === 'black'
+
+  return state === 'loading' ? (
     <Flex
       direction={Flex.directions.COLUMN}
       align={Flex.align.CENTER}
@@ -20,8 +24,19 @@ export const TableEmptyState: React.FC<TableEmptyStateProps> = ({
         minHeight: '400px',
       }}
     >
-      <Heading type={Heading.types.h2} value="Loading subitems..." />
-      <Loader size={Loader.sizes.MEDIUM} />
+      <Heading
+        type={Heading.types.h2}
+        value="Loading subitems..."
+        customColor={isDarkTheme ? 'white' : 'black'}
+      />
+      <Loader
+        size={Loader.sizes.MEDIUM}
+        color={
+          isDarkTheme
+            ? ('white' as typeof Loader.colors.SECONDARY)
+            : ('black' as typeof Loader.colors.SECONDARY)
+        }
+      />
     </Flex>
   ) : state === 'empty' ? (
     <Flex
@@ -46,8 +61,13 @@ export const TableEmptyState: React.FC<TableEmptyStateProps> = ({
         type={Heading.types.h2}
         id="empty-state-id"
         value={`No subtitems yet for item #${itemId}`}
+        customColor={isDarkTheme ? 'white' : 'black'}
       />
-      <Text>Be the first to add a subitem and start collaborating!</Text>
+      <Text
+        color={isDarkTheme ? Text.colors.FIXED_LIGHT : Text.colors.FIXED_DARK}
+      >
+        Be the first to add a subitem and start collaborating!
+      </Text>
     </Flex>
   ) : (
     <Flex
@@ -72,9 +92,13 @@ export const TableEmptyState: React.FC<TableEmptyStateProps> = ({
         type={Heading.types.h2}
         id="error-state-id"
         value="Failed to load subitems"
+        customColor={isDarkTheme ? 'white' : 'black'}
       />
-      <Text>
+      <Text
+        color={isDarkTheme ? Text.colors.FIXED_LIGHT : Text.colors.FIXED_DARK}
+      >
         Something went wrong while loading subitems. Please try again later.
       </Text>
     </Flex>
   )
+}

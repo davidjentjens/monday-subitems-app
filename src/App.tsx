@@ -10,6 +10,7 @@ import { monday } from './services'
 interface ContextData {
   itemId: number
   theme?: any
+  themeConfig?: any
   user: {
     isViewOnly: boolean
   }
@@ -38,7 +39,7 @@ const App: React.FC = () => {
 
   const [context, setContext] = useState<ContextData | null>({
     itemId: 0,
-    theme: 'dark',
+    theme: 'light',
     user: {
       isViewOnly: false,
     },
@@ -53,7 +54,7 @@ const App: React.FC = () => {
         setParentItemId(7900872202)
 
         const unsubscribe = monday.listen('context', (res: MondayContext) => {
-          console.log('Context:', res)
+          // console.log('Context:', res)
 
           if (!isMounted) return
 
@@ -138,8 +139,11 @@ const App: React.FC = () => {
   }
 
   return (
-    <ThemeProvider systemTheme={context.theme}>
-      <CustomThemeProvider defaultTheme={context.theme}>
+    <ThemeProvider
+      systemTheme={context.theme}
+      themeConfig={context.themeConfig}
+    >
+      <CustomThemeProvider defaultTheme="light" systemTheme={context.theme}>
         {isLoading || !parentItemId ? (
           <LoadingState />
         ) : (

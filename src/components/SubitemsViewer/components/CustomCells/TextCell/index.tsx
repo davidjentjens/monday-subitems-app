@@ -39,15 +39,21 @@ export const TextCell: React.FC<CellProps> = ({
     debouncedUpdate(value)
   }
 
-  const navigateToSubitem = () => {
-    // Replace the id after /pulses/ with the subitem id
-    // Don't remove whatever is before the /pulses/ part
-    const subItemUrl = `${window.location.href.replace(
-      /\/pulses\/\d+/,
-      `/pulses/${subItemId}`,
-    )}`
+  const navigateToSubitem = async () => {
+    const { data } = await monday.api(`query {
+      boards (limit:1)  {
+        owner {
+          account {
+            slug
+          }
+        }
+    }}`)
 
-    window.open(subItemUrl)
+    const slug = data.boards[0].owner.account.slug
+
+    const subItemUrl = `https://${slug}.monday.com/boards/${boardId}/pulses/${subItemId}`
+
+    window.open(subItemUrl, '_blank')
   }
 
   return (

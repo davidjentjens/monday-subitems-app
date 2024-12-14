@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 
 type Theme = 'dark' | 'light' | 'black'
 
@@ -8,7 +8,8 @@ interface CustomThemeContextProps {
 }
 
 interface CustomThemeProviderProps {
-  defaultTheme: Theme
+  defaultTheme?: Theme
+  systemTheme?: Theme
   children: React.ReactNode
 }
 
@@ -25,10 +26,18 @@ export const useCustomTheme = (): CustomThemeContextProps => {
 }
 
 export const CustomThemeProvider: React.FC<CustomThemeProviderProps> = ({
-  defaultTheme,
+  defaultTheme = 'light',
+  systemTheme,
   children,
 }) => {
-  const [theme, setTheme] = React.useState<Theme>(defaultTheme)
+  const [theme, setTheme] = React.useState<Theme>(systemTheme || defaultTheme)
+
+  // Update theme when systemTheme changes
+  useEffect(() => {
+    if (systemTheme) {
+      setTheme(systemTheme)
+    }
+  }, [systemTheme])
 
   const changeTheme = (newTheme: Theme) => {
     setTheme(newTheme)
