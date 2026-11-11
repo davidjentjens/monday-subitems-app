@@ -13,7 +13,7 @@
     "lint": "eslint --fix",
     "preview": "vite preview",
     "start": "serve -s dist -l 8080",
-    "deploy": "tsc -b && vite build && mapps code:push -i 10478998 --verbose"
+    "deploy": "tsc -b && vite build && mapps code:push -i 10478998 --force --verbose"
   },
   "dependencies": {
     "dompurify": "^3.2.1",
@@ -29,7 +29,7 @@
     "serve": "^14.2.3"
   },
   "devDependencies": {
-    "@mondaycom/apps-cli": "4.2.0",
+    "@mondaycom/apps-cli": "4.11.1",
     "@rocketseat/eslint-config": "^2.2.2",
     "@types/lodash": "^4.17.7",
     "@types/node": "^22.5.1",
