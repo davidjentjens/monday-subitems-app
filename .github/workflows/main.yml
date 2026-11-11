@@ -20,6 +20,10 @@ jobs:
         
               - name: Install dependencies
                 run: npm ci
+                env:
+                  # apps-cli's patch-package postinstall hard-fails on CI for a
+                  # patch that never applies; CI=false keeps it a warning.
+                  CI: 'false'
         
               - name: Authenticate monday CLI
                 run: npx mapps init -t "$MONDAY_API_TOKEN"
